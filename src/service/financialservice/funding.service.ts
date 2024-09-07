@@ -39,12 +39,12 @@ export class FundingRoundService {
       where: { id: fundingId }
     });
 
-    const minimumShare = fundingRound.minimumShare;
+    // const minimumShare = fundingRound.minimumShare;
 
-    // Validate minimum shares
-    if (investorShares.some(shares => shares < minimumShare)) {
-      throw new HttpException(`Shares must be at least ${minimumShare}`, HttpStatus.BAD_REQUEST);
-    }
+    // // Validate minimum shares
+    // if (investorShares.some(shares => shares < minimumShare)) {
+    //   throw new HttpException(`Shares must be at least ${minimumShare}`, HttpStatus.BAD_REQUEST);
+    // }
 
     // Calculate moneyRaised from investorShares array
     const moneyRaised = investorShares.reduce((acc, shares) => acc + shares, 0);
@@ -113,12 +113,12 @@ export class FundingRoundService {
       throw new NotFoundException('Funding round not found');
     }
 
-    const minimumShare = fundingRound.minimumShare;
+    // const minimumShare = fundingRound.minimumShare;
 
-    // Validate minimum shares
-    if (investorData.some(investor => investor.shares < minimumShare)) {
-      throw new HttpException(`Shares must be at least ${minimumShare}`, HttpStatus.BAD_REQUEST);
-    }
+    // // Validate minimum shares
+    // if (investorData.some(investor => investor.shares < minimumShare)) {
+    //   throw new HttpException(`Shares must be at least ${minimumShare}`, HttpStatus.BAD_REQUEST);
+    // }
   
     // Update the funding round with new data
     Object.assign(fundingRound, updateData);
