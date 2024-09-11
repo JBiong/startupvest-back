@@ -21,6 +21,9 @@ export class CapTableInvestor {
   @Column()
   shares: number;
 
+  @Column()
+  totalInvestment: number;
+
   @Column({ default: false })
   isDeleted: boolean;
 }

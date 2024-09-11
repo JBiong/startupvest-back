@@ -89,7 +89,7 @@ export class FundingRoundController {
   @Put(':id')
   async updateFundingRound(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { updateData: Partial<FundingRound>, investors: { id: number; shares: number; title: string }[] }
+    @Body() body: { updateData: Partial<FundingRound>, investors: { id: number; shares: number; title: string, totalInvestment: number }[] }
   ): Promise<FundingRound> {
     try {
       const { updateData, investors } = body;
@@ -135,23 +135,29 @@ export class FundingRoundController {
     return this.fundingRoundService.getTotalSharesForInvestor(investorId, companyId);
   }
 
-  @Get('investors/all')
-  async getAllInvestorsData(@Param('companyId') companyId: number) {
-    return this.fundingRoundService.getAllInvestorsData(companyId);
-  }
+  @Get(':companyId/investors/all')
+async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number) {
+    try {
+        const investors = await this.fundingRoundService.getAllInvestorsDataOfAllTheCompany(companyId);
+        // Return an empty array if no investors are found
+        return investors.length ? investors : [];
+    } catch (error) {
+        this.logger.error(`Failed to fetch investors for company ${companyId}:`, error);
+        throw new HttpException('Failed to fetch investors', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 
   // Remove this method as it duplicates functionality
 // @Get('investors/all')
-// async getAllInvestorsData(@Param('companyId') companyId: number) {
-//   return this.fundingRoundService.getAllInvestorsData(companyId);
+// async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number) {
+//   return this.fundingRoundService.getAllInvestorsDataOfAllTheCompany(companyId);
 // }
 
 // Use this single endpoint to fetch all investors for a specific company
-@Get('investors/:companyId')
-async getAllInvestorData(@Param('companyId') companyId: number): Promise<InvestorData[]> {
+@Get('investors/company/:companyId')
+async getAllInvestorDataByEachCompany(@Param('companyId') companyId: number): Promise<InvestorData[]> {
   try {
-    const investors = await this.fundingRoundService.getAllInvestorData(companyId);
-    // Return an empty array if no investors are found
+    const investors = await this.fundingRoundService.getAllInvestorDataByEachCompany(companyId);
     if (investors.length === 0) {
       return [];
     }
