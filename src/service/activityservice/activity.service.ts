@@ -15,7 +15,6 @@ export class ActivityService {
 
     async createActivity(userId: number, recentData: Activity) {
 
-<<<<<<< HEAD
         const recentactivity = this.activityRepository.create({ ...recentData, user: { id: userId } });
     
         return await this.activityRepository.save(recentactivity);
@@ -28,21 +27,5 @@ export class ActivityService {
       async findOne(id: number) {
         return await this.activityRepository.findOneBy({ id });
       }
-=======
-    async getRecentActivities(companyId: number, limit: number = 10): Promise<Activity[]> {
-        return this.activityRepository.find({
-            where: { companyId },
-            order: { timestamp: 'DESC' },
-            take: limit,
-        });
-    }
-
-    async getAllRecentActivities(limit: number = 10): Promise<Activity[]> {
-        return this.activityRepository.find({
-            order: { timestamp: 'DESC' },
-            take: limit,
-        });
-    }
->>>>>>> eead9b89f8b96f192ac616152898d533c773408d
     
 }
