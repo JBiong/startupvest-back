@@ -1,14 +1,20 @@
+<<<<<<< HEAD
 //Activity controller
 // src/activity/activity.controller.ts
 import { Controller, Get, Query, Param, Post, Body, UnauthorizedException, Req } from '@nestjs/common';
 import { ActivityService } from 'src/service/activityservice/activity.service';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
+=======
+import { Controller, Get, Query, Param } from '@nestjs/common';
+import { ActivityService } from 'src/service/activityservice/activity.service';
+>>>>>>> eead9b89f8b96f192ac616152898d533c773408d
 import { Activity } from 'src/entities/activityentities/activity.entity';
 
 @Controller('activities')
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
+<<<<<<< HEAD
   // @Post('log')
   // async logActivity(@Body() activityData: { companyId: number; fundId: number; activityType: string; description: string }) {
   //   return this.activityService.logFundActivity(activityData.companyId, activityData.fundId, activityData.activityType, activityData.description);
@@ -60,4 +66,20 @@ export class ActivityController {
     return await this.activityService.findOne(+id);
   }
   
+=======
+  @Get(':companyId/recent')
+  async getRecentActivities(
+    @Param('companyId') companyId: number,
+    @Query('limit') limit: number = 10
+  ): Promise<Activity[]> {
+    return this.activityService.getRecentActivities(companyId, limit);
+  }
+
+  @Get('all-recent') // New endpoint for all recent activities
+  async getAllRecentActivities(
+    @Query('limit') limit: number = 10
+  ): Promise<Activity[]> {
+    return this.activityService.getAllRecentActivities(limit);
+  }
+>>>>>>> eead9b89f8b96f192ac616152898d533c773408d
 }
