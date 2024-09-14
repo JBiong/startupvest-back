@@ -85,11 +85,10 @@ export class FundingRoundService {
 
       //activity submit something 
       await this.activityService.logFundActivity(
-     
         fundingId, // Company ID
         createdCapTable.id, // Entity ID (Funding Round ID)
         'CREATE_FUND', // Action
-        `Created a funding roundfor company ${fundingId}.` // Description
+        `Created a funding round for company.` // Description
       );
   
       return createdCapTable;

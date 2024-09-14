@@ -24,5 +24,12 @@ export class ActivityService {
             take: limit,
         });
     }
+
+    async getAllRecentActivities(limit: number = 10): Promise<Activity[]> {
+        return this.activityRepository.find({
+            order: { timestamp: 'DESC' },
+            take: limit,
+        });
+    }
     
 }
