@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from 'src/entities/activityentities/activity.entity';
+import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,17 +13,19 @@ export class ActivityService {
         
     ) {}
 
-    async logFundActivity( companyId: number, fundId: number, activityType: string, description: string): Promise<Activity> {
-        const activity = this.activityRepository.create({  companyId, fundId, activityType, description });
-        return this.activityRepository.save(activity);
-    }
+    async createActivity(userId: number, recentData: Activity) {
 
-    async getRecentActivities(companyId: number, limit: number = 10): Promise<Activity[]> {
-        return this.activityRepository.find({
-            where: { companyId },
-            order: { timestamp: 'DESC' },
-            take: limit,
-        });
-    }
+        const recentactivity = this.activityRepository.create({ ...recentData, user: { id: userId } });
+    
+        return await this.activityRepository.save(recentactivity);
+      }
+
+      async findAll(userId: number): Promise<Activity[]> {
+        return this.activityRepository.find({ where: { user: { id: userId }} });
+      }
+    
+      async findOne(id: number) {
+        return await this.activityRepository.findOneBy({ id });
+      }
     
 }

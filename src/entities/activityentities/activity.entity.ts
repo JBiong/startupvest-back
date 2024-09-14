@@ -1,5 +1,6 @@
 //Activity Entity
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { User } from '../user.entity';
 
 @Entity()
 export class Activity {
@@ -7,17 +8,14 @@ export class Activity {
     id: number;
 
     @Column()
-    companyId: number; // ID of the company related to the fund
+    action: string;
 
-    @Column()
-    fundId: number; // ID of the fund that was created, updated, or deleted
-
-    @Column({ length: 50 })
-    activityType: string; // "CREATE_FUND", "UPDATE_FUND", "DELETE_FUND"
-
-    @Column('text')
-    description: string; // A brief description of the activity
+    @Column({ nullable: true })
+    details: string;
 
     @CreateDateColumn({ type: 'timestamp' })
     timestamp: Date; // Automatically set the current date and time
+
+    @ManyToOne(() => User, (user) => user.activities)
+    user: User;
 }

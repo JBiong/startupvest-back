@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import { Investor } from './businessprofileentities/investor.entity';
 import { ProfilePicture } from './profilepictureentities/profilepicture.entity';
+import { Activity } from './activityentities/activity.entity';
 
 
 @Entity()
@@ -37,4 +38,7 @@ export class User {
 
   @OneToMany(() => ProfilePicture, profilePicture => profilePicture.user)
   profilePicture: ProfilePicture; // This will create a foreign key in the ProfilePicture table
+
+  @OneToMany(() => Activity, activities => activities.user)
+  activities: Activity;
 }
