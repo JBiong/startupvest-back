@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import { InvestorService } from '../businessprofileservice/investor.service';
 import { CapTableInvestor } from 'src/entities/financialentities/capInvestor.entity';
+import { ActivityService } from '../activityservice/activity.service';
 import { title } from 'process';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import { share } from 'rxjs';
@@ -28,7 +29,8 @@ export class FundingRoundService {
     private readonly fundingRoundRepository: Repository<FundingRound>,
     private readonly investorService: InvestorService,
     @InjectRepository(CapTableInvestor)
-    private readonly capTableInvestorRepository: Repository<CapTableInvestor>
+    private readonly capTableInvestorRepository: Repository<CapTableInvestor>,
+    private readonly activityService: ActivityService,
   ) { }
 
   async create(
@@ -80,6 +82,15 @@ export class FundingRoundService {
         await this.capTableInvestorRepository.save(capTableInvestor);
         return this.findById(createdCapTable.id);
       }));
+
+      //activity submit something 
+      await this.activityService.logFundActivity(
+     
+        fundingId, // Company ID
+        createdCapTable.id, // Entity ID (Funding Round ID)
+        'CREATE_FUND', // Action
+        `Created a funding roundfor company ${fundingId}.` // Description
+      );
   
       return createdCapTable;
   }

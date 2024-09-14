@@ -13,11 +13,13 @@ import { InvestorService } from 'src/service/businessprofileservice/investor.ser
 import { CapTableInvestor } from 'src/entities/financialentities/capInvestor.entity';
 import { CapTableInvestorController } from 'src/controller/financialcontroller/capinvestor.controller';
 import { CapTableInvestorService } from 'src/service/financialservice/capinvestor.service';
+import { ActivityService } from 'src/service/activityservice/activity.service';
+import { Activity } from 'src/entities/activityentities/activity.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FundingRound, Investor, Startup, User, CapTableInvestor]), // Import the Startup entity
+    TypeOrmModule.forFeature([FundingRound, Investor, Startup, User, CapTableInvestor,Activity]), // Import the Startup entity
   ],
   controllers: [FundingRoundController, CapTableInvestorController],
-  providers: [FundingRoundService, StartupService, UserService, InvestorService, CapTableInvestorService], // Add StartupService to providers
+  providers: [FundingRoundService, StartupService, UserService, InvestorService, CapTableInvestorService,ActivityService], // Add StartupService to providers
 })
 export class FundingModule { }
