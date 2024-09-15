@@ -84,7 +84,6 @@ export class FundingRoundService {
       }));
 
       //activity submit something 
-<<<<<<< HEAD
       // await this.activityService.logFundActivity(
      
       //   fundingId, // Company ID
@@ -92,14 +91,12 @@ export class FundingRoundService {
       //   'CREATE_FUND', // Action
       //   `Created a funding roundfor company ${fundingId}.` // Description
       // );
-=======
-      await this.activityService.logFundActivity(
-        fundingId, // Company ID
-        createdCapTable.id, // Entity ID (Funding Round ID)
-        'CREATE_FUND', // Action
-        `Created a funding round for company.` // Description
-      );
->>>>>>> eead9b89f8b96f192ac616152898d533c773408d
+      // await this.activityService.logFundActivity(
+      //   fundingId, // Company ID
+      //   createdCapTable.id, // Entity ID (Funding Round ID)
+      //   'CREATE_FUND', // Action
+      //   `Created a funding round for company.` // Description
+      // );
   
       return createdCapTable;
   }
