@@ -19,21 +19,21 @@ export class FundingRoundController {
     private readonly fundingRoundService: FundingRoundService
   ) { }
 
-  // private getUserIdFromToken(authorizationHeader?: string): number {
-  //   console.log('Authorization Header:', authorizationHeader);
+  private getUserIdFromToken(authorizationHeader?: string): number {
+    console.log('Authorization Header:', authorizationHeader);
 
-  //   if (!authorizationHeader) {
-  //     throw new UnauthorizedException('Authorization header is required');
-  //   }
+    if (!authorizationHeader) {
+      throw new UnauthorizedException('Authorization header is required');
+    }
 
-  //   const token = authorizationHeader.replace('Bearer ', '');
-  //   console.log('Token:', token);
+    const token = authorizationHeader.replace('Bearer ', '');
+    console.log('Token:', token);
 
-  //   const payload = jwt.verify(token, 'secretKey');
-  //   console.log('Payload:', payload);
+    const payload = jwt.verify(token, 'secretKey');
+    console.log('Payload:', payload);
 
-  //   return payload.userId;
-  // }
+    return payload.userId;
+  }
 
   @Get('by-ids')
   async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
@@ -42,7 +42,7 @@ export class FundingRoundController {
   }
 
   @Post('createfund')
-  async createFundingRound(@Body() fundingRoundData: Partial<FundingRound>, @Body('investors') investors: Investor[], @Body('shares') shares: number[], @Body('titles') titles: string[]): Promise<FundingRound> {
+  async createFundingRound(@Req() request: Request, @Body() fundingRoundData: Partial<FundingRound>, @Body('investors') investors: Investor[], @Body('shares') shares: number[], @Body('titles') titles: string[], userId: number): Promise<FundingRound> {
     try {
       this.logger.log('Received funding round data:', JSON.stringify(fundingRoundData));
 
@@ -54,7 +54,9 @@ export class FundingRoundController {
       const investorIds = fundingRoundData.investors?.map(investor => investor.id) || [];
       this.logger.log('Extracted investor IDs:', investorIds);
 
-      const createdFunding = await this.fundingRoundService.create(startupId, fundingRoundData as FundingRound, investorIds, shares, titles);
+      const userId = this.getUserIdFromToken(request.headers['authorization']);
+
+      const createdFunding = await this.fundingRoundService.create(startupId, fundingRoundData as FundingRound, investorIds, shares, titles, userId);
 
       this.logger.log('Funding round created:', JSON.stringify(createdFunding));
       return createdFunding;
@@ -102,10 +104,22 @@ export class FundingRoundController {
     }
   }
 
-  @Delete(':id')
-  async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
-    return this.fundingRoundService.softDelete(id);
+  @Put(':fundingRoundId/investors/:investorId')
+  async investorRemoved(
+    @Param('fundingRoundId') fundingRoundId: number,
+    @Param('investorId') investorId: number
+  ) {
+    const updatedFundingRound = await this.fundingRoundService.investorRemoved(
+      fundingRoundId,
+      investorId
+    );
+    return updatedFundingRound;
   }
+
+  // @Delete(':id')
+  // async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
+  //   return this.fundingRoundService.softDelete(id);
+  // }
 
   @Get(':id/total-money-raised')
   async getTotalMoneyRaisedForStartup(@Param('id') startupId: number): Promise<{ totalMoneyRaised: number }> {

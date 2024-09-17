@@ -15,6 +15,11 @@ export class CapTableInvestorService {
       where: { capTable: { id: capTableId } },
     });
   }
+
+  async findAll(userId: number): Promise<CapTableInvestor[]> {
+    return this.capTableInvestorRepository.find({ where: { user: { id: userId }} });
+  }
+
   async findOne(id: number): Promise<CapTableInvestor> {
     return this.capTableInvestorRepository.findOne({ where: { id } });
   }

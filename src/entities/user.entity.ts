@@ -3,6 +3,7 @@ import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import { Investor } from './businessprofileentities/investor.entity';
 import { ProfilePicture } from './profilepictureentities/profilepicture.entity';
 import { Activity } from './activityentities/activity.entity';
+import { CapTableInvestor } from './financialentities/capInvestor.entity';
 
 
 @Entity()
@@ -30,6 +31,8 @@ export class User {
   @Column({ length: 500, nullable: true }) // Make the password property optional
   password?: string;
 
+  //Relationships
+
   @OneToMany(() => Startup, startup => startup.user)
   startups: Startup[];
 
@@ -41,4 +44,7 @@ export class User {
 
   @OneToMany(() => Activity, activities => activities.user)
   activities: Activity;
+
+  @OneToMany(() => CapTableInvestor, capTableInvestor => capTableInvestor.user)
+  capTableInvestor: CapTableInvestor;
 }

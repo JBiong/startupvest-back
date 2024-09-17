@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Investor } from '../businessprofileentities/investor.entity';
 import { FundingRound } from './funding.entity';
+import { User } from '../user.entity';
 
 @Entity()
 export class CapTableInvestor {
@@ -26,4 +27,10 @@ export class CapTableInvestor {
 
   @Column({ default: false })
   isDeleted: boolean;
+
+  @Column({ default: false })
+  investorRemoved: boolean;
+
+  @ManyToOne(() => User, (user) => user.capTableInvestor)
+    user: User;
 }
