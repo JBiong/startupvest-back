@@ -91,18 +91,24 @@ export class FundingRoundController {
   @Put(':id')
   async updateFundingRound(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { updateData: Partial<FundingRound>, investors: { id: number; shares: number; title: string, totalInvestment: number }[] }
+    @Body() body: { updateData: Partial<FundingRound>, investors: { id: number; shares: number; title: string, totalInvestment: number }[] },
+    @Req() request: Request // Add @Req to access the request object
   ): Promise<FundingRound> {
     try {
       const { updateData, investors } = body;
-      // Call the service method to update the funding round
-      const updatedFundingRound = await this.fundingRoundService.update(id, updateData, investors);
+
+      // Retrieve the userId from the authorization token
+      const userId = this.getUserIdFromToken(request.headers['authorization']);
+
+      // Call the service method to update the funding round, passing the userId
+      const updatedFundingRound = await this.fundingRoundService.update(id, updateData, investors, userId);
       return updatedFundingRound;
     } catch (error) {
       this.logger.error('Failed to update funding round:', error);
       throw new HttpException('Failed to update funding round', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
 
   @Put(':fundingRoundId/investors/:investorId')
   async investorRemoved(

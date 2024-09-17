@@ -118,9 +118,10 @@ export class FundingRoundService {
   }
 
   async update(
-      id: number, 
-      updateData: Partial<FundingRound>, 
-      investorData: { id: number; shares: number; title: string; totalInvestment: number }[]
+    id: number,
+    updateData: Partial<FundingRound>,
+    investorData: { id: number; shares: number; title: string; totalInvestment: number }[],
+    userId: number // Add userId here
   ): Promise<FundingRound> {
       // Retrieve the existing funding round
       const fundingRound = await this.findById(id);
@@ -149,12 +150,15 @@ export class FundingRoundService {
       // Update existing investors and add new investors
       for (const { id: investorId, shares, title, totalInvestment } of investorData) {
           let capTableInvestor = existingCapTableInvestorMap.get(investorId);
-          
+
           if (capTableInvestor) {
               // Update existing investor shares and title
               capTableInvestor.shares = shares;
               capTableInvestor.title = title;
               capTableInvestor.totalInvestment = minimumShare * shares; // Ensure totalInvestment is correctly calculated
+
+              // Assign the userId to the existing cap table investor
+              capTableInvestor.user = { id: userId } as User;
           } else {
               // Create new investor
               capTableInvestor = this.capTableInvestorRepository.create({
@@ -162,7 +166,8 @@ export class FundingRoundService {
                   investor: { id: investorId } as Investor,
                   shares: shares,
                   title: title,
-                  totalInvestment: minimumShare * shares // Calculate totalInvestment
+                  totalInvestment: minimumShare * shares, // Calculate totalInvestment
+                  user: { id: userId } as User // Assign the userId here
               });
           }
 
@@ -175,7 +180,6 @@ export class FundingRoundService {
 
       // Recalculate the money raised
       fundingRound.moneyRaised = updatedCapTableInvestors.reduce((acc, investor) => acc + investor.totalInvestment, 0);
-      // fundingRound.moneyRaised = totalMoneyRaised;
 
       // Save the updated funding round
       const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
