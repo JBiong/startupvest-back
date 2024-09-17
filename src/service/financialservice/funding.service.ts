@@ -93,6 +93,8 @@ export class FundingRoundService {
   
 
   async findById(id: number): Promise<FundingRound> {
+    console.log(`Attempting to find funding round with ID: ${id}`);
+  
     try {
       const fundingRound = await this.fundingRoundRepository.findOne({
         where: { id, isDeleted: false },
@@ -100,6 +102,7 @@ export class FundingRoundService {
       });
   
       if (!fundingRound) {
+        console.log(`Funding round with ID ${id} not found`);
         throw new NotFoundException('Funding round not found');
       }
   
@@ -397,6 +400,56 @@ export class FundingRoundService {
       throw new InternalServerErrorException('Error fetching all investor data');
     }
   }  
+
+  async getTotalMonthlyFunding(userId: number): Promise<any> {
+    try {
+      // Fetch companies associated with the user
+      const userCompanies = await this.fundingRoundRepository.createQueryBuilder('fundingRound')
+        .innerJoinAndSelect('fundingRound.startup', 'startup')
+        .innerJoinAndSelect('startup.user', 'user')
+        .where('user.id = :userId', { userId })
+        .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
+        .getMany();
+  
+      // Check if userCompanies is not empty
+      if (!userCompanies.length) {
+        throw new NotFoundException('No funding rounds found for the specified user');
+      }
+  
+      const monthlyTotals = new Map<string, number>();
+  
+      userCompanies.forEach(round => {
+        const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
+        if (!monthlyTotals.has(month)) {
+          monthlyTotals.set(month, 0);
+        }
+        monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
+      });
+  
+      return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
+    } catch (error) {
+      this.logger.error('Error calculating total monthly funding:', error.message);
+      throw new InternalServerErrorException('Error calculating total monthly funding');
+    }
+  }
+  
+
+  // async getTotalFundedPerMonth(): Promise<{ month: string, totalAmount: number }[]> {
+  //   try {
+  //     return await this.fundingRoundRepository
+  //       .createQueryBuilder('fundingRound')
+  //       .select("DATE_FORMAT(fundingRound.createdAt, '%Y-%m')", 'month') // Format date for MySQL
+  //       .addSelect('SUM(fundingRound.moneyRaised)', 'totalAmount') // Sum of the funding amounts
+  //       .groupBy('month')
+  //       .orderBy('month', 'ASC') // Order the months in ascending order
+  //       .getRawMany(); // Fetch raw results
+  //   } catch (error) {
+  //     this.logger.error('Error fetching total funded amount per month', error.message);
+  //     throw new InternalServerErrorException('Error fetching total funded amount per month');
+  //   }
+  // }
+  
+  
   
   
   

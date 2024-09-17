@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany, CreateDateColumn } from 'typeorm';
 import { Startup } from '../businessprofileentities/startup.entity';
 import { Investor } from '../businessprofileentities/investor.entity';
 import { CapTableInvestor } from './capInvestor.entity';
@@ -31,6 +31,9 @@ export class FundingRound {
 
   @Column({ default: false })
   isDeleted: boolean;
+
+  @CreateDateColumn()  // Automatically adds the current timestamp when the row is created
+  createdAt: Date;
 
   //CAP TABLE
   @ManyToOne(() => Startup, startup => startup.fundingRounds)

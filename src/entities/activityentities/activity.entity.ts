@@ -14,7 +14,7 @@ export class Activity {
     details: string;
 
     @CreateDateColumn({ type: 'timestamp' })
-    timestamp: Date; // Automatically set the current date and time
+    timestamp: Date; 
 
     @ManyToOne(() => User, (user) => user.activities)
     user: User;

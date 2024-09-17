@@ -33,9 +33,9 @@ export class UsersController {
 
     const jwt = sign({ userId: user.id }, 'secretKey'); // Sign the JWT with the user's ID
 
-    return { message: 'Login successful', jwt };
+    return { message: 'Login successful', jwt, userId: user.id };
   }
-
+  
   @Post('check-email')
   async checkEmail(@Body() { email }: { email: string }): Promise<{ exists: boolean }> {
     const isEmailRegistered = await this.userService.isEmailRegistered(email);

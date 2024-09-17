@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query, Put, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query, Put, Delete, ParseIntPipe, BadRequestException } from '@nestjs/common';
 import { FundingRoundService } from 'src/service/financialservice/funding.service';
 import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
@@ -188,5 +188,23 @@ async getAllInvestorDataByEachCompany(@Param('companyId') companyId: number): Pr
   }
 }
 
+// @Get('total-funded-per-month/:startupId')
+//   async getTotalFundedPerMonth(@Param('startupId') startupId: number) {
+//     return this.fundingRoundService.getTotalFundedPerMonth(startupId);
+//   }
+@Get('monthly-funding/:userId')
+async getTotalMonthlyFunding(@Param('userId') userId: string): Promise<any> {
+  const numericUserId = parseInt(userId, 10);
+
+  if (isNaN(numericUserId)) {
+    throw new BadRequestException('Invalid user ID format');
+  }
+
+  try {
+    return await this.fundingRoundService.getTotalMonthlyFunding(numericUserId);
+  } catch (error) {
+    throw new NotFoundException(error.message);
+  }
+}
 }
 
