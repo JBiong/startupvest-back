@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, ManyToMany, JoinTable, PrimaryColumn, BeforeInsert } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { FundingRound } from '../financialentities/funding.entity';
 import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
@@ -6,7 +6,7 @@ import { ProfilePicture } from '../profilepictureentities/profilepicture.entity'
 import { CapTableInvestor } from '../financialentities/capInvestor.entity';
 @Entity()
 export class Investor {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column({ length: 500 })
@@ -73,4 +73,11 @@ export class Investor {
 
   @OneToOne(() => ProfilePicture, (profilePicture) => profilePicture.investor)
   profilePicture: ProfilePicture;
+
+  @BeforeInsert()
+  setIdFromUser() {
+  console.log('Setting investor id from user id:', this.user.id);  // Log user id
+  this.id = this.user.id;
+  }
+
 }

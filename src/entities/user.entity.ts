@@ -37,6 +37,7 @@ export class User {
   startups: Startup[];
 
   @OneToOne(() => Investor, investor => investor.user)
+  @JoinColumn() 
   investor: Investor;
 
   @OneToMany(() => ProfilePicture, profilePicture => profilePicture.user)
