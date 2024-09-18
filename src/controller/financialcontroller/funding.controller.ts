@@ -109,10 +109,10 @@ export class FundingRoundController {
     }
   }
 
-  // @Delete(':id')
-  // async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
-  //   return this.fundingRoundService.softDelete(id);
-  // }
+  @Put(':id/delete')
+  async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
+    return this.fundingRoundService.softDelete(id);
+  }
 
   @Get(':id/total-money-raised')
   async getTotalMoneyRaisedForStartup(@Param('id') startupId: number): Promise<{ totalMoneyRaised: number }> {
