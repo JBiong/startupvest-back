@@ -109,19 +109,6 @@ export class FundingRoundController {
     }
   }
 
-
-  @Put(':fundingRoundId/investors/:investorId')
-  async investorRemoved(
-    @Param('fundingRoundId') fundingRoundId: number,
-    @Param('investorId') investorId: number
-  ) {
-    const updatedFundingRound = await this.fundingRoundService.investorRemoved(
-      fundingRoundId,
-      investorId
-    );
-    return updatedFundingRound;
-  }
-
   // @Delete(':id')
   // async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
   //   return this.fundingRoundService.softDelete(id);

@@ -217,40 +217,6 @@ export class FundingRoundService {
     // Save the updated funding round
     await this.fundingRoundRepository.save(fundingRound);
   }
-
-  async investorRemoved(fundingRoundId: number, investorId: number): Promise<FundingRound> {
-    // Retrieve the funding round by ID
-    const fundingRound = await this.findById(fundingRoundId);
-    if (!fundingRound) {
-      throw new NotFoundException('Funding round not found');
-    }
-  
-    // Find the CapTableInvestor entity for the given investor in this funding round
-    const capTableInvestor = await this.capTableInvestorRepository.findOne({
-      where: { capTable: fundingRound, investor: { id: investorId } },
-    });
-  
-    if (!capTableInvestor) {
-      throw new NotFoundException('Investor not found in this funding round');
-    }
-  
-    // Soft delete the CapTableInvestor entity
-    capTableInvestor.investorRemoved = true;
-    await this.capTableInvestorRepository.save(capTableInvestor);
-  
-    // Recalculate the moneyRaised after removing the investor's contribution
-    fundingRound.moneyRaised -= capTableInvestor.totalInvestment;
-  
-    // Save the updated funding round with the recalculated moneyRaised
-    const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
-  
-    // Manually set the updated cap table investors into the updatedFundingRound for return (excluding the removed investor)
-    updatedFundingRound.capTableInvestors = fundingRound.capTableInvestors.filter(
-      (investor) => investor.id !== capTableInvestor.id
-    );
-  
-    return updatedFundingRound;
-  }
   
 
   async getTotalMoneyRaisedForStartup(startupId: number): Promise<number> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Param, Put, Req, UnauthorizedException } from '@nestjs/common';
 import { CapTableInvestorService } from 'src/service/financialservice/capinvestor.service';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
@@ -34,6 +34,27 @@ export class CapTableInvestorController {
   @Get(':capTableId')
   async getInvestorInformation(@Param('capTableId') capTableId: number) {
     return this.capTableInvestorService.getInvestorInformation(capTableId);
+  }
+
+  @Get(':userId/top')
+async getTopInvestorByCapTable(@Req() request: Request) {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    const topInvestor = await this.capTableInvestorService.findTopInvestorByUser(userId);
+
+    if (!topInvestor) {
+        return { message: 'No investors found' };
+    }
+
+    return topInvestor; // Returns the name and total investment of the top investor
+}
+
+
+  @Put(':investorId/:capTableId')
+  async removeInvestor(
+    @Param('investorId') investorId: number,
+    @Param('capTableId') capTableId: number
+  ): Promise<void> {
+    await this.capTableInvestorService.removeInvestor(investorId, capTableId);
   }
 
   // You can add more endpoints for fetching shares, titles, etc.
