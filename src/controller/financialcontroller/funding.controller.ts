@@ -193,5 +193,10 @@ async getTotalMonthlyFunding(@Param('userId') userId: string): Promise<any> {
     throw new NotFoundException(error.message);
   }
 }
+
+@Get('company-monthly-funding/:companyId')
+  async getCompanyMonthlyFunding(@Param('companyId') companyId: number) {
+    return this.fundingRoundService.getTotalMonthlyFundingByCompany(companyId);
+  }
 }
 

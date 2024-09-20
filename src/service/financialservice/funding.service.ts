@@ -398,6 +398,40 @@ export class FundingRoundService {
       throw new InternalServerErrorException('Error calculating total monthly funding');
     }
   }
+
+
+  async getTotalMonthlyFundingByCompany(companyId: number): Promise<any> {
+    try {
+      // Fetch funding rounds associated with the specified company
+      const companyFundingRounds = await this.fundingRoundRepository.createQueryBuilder('fundingRound')
+        .innerJoinAndSelect('fundingRound.startup', 'startup')
+        .where('startup.id = :companyId', { companyId })
+        .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
+        .getMany();
+  
+      // Check if companyFundingRounds is not empty
+      if (!companyFundingRounds.length) {
+        throw new NotFoundException('No funding rounds found for the specified company');
+      }
+  
+      const monthlyTotals = new Map<string, number>();
+  
+      // Aggregate the money raised by month
+      companyFundingRounds.forEach(round => {
+        const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
+        if (!monthlyTotals.has(month)) {
+          monthlyTotals.set(month, 0);
+        }
+        monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
+      });
+  
+      // Convert the map to an array of objects
+      return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
+    } catch (error) {
+      this.logger.error('Error calculating total monthly funding by company:', error.message);
+      throw new InternalServerErrorException('Error calculating total monthly funding by company');
+    }
+  }
   
 
   // async getTotalFundedPerMonth(): Promise<{ month: string, totalAmount: number }[]> {
