@@ -59,10 +59,11 @@ export class ProfilePictureController {
   async getStartupProfilePicture(@Param('startupId') startupId: number, @Res() res: Response) {
     const profilePicture = await this.profilePictureService.findProfilePictureForStartup(startupId);
     if (profilePicture) {
-      res.set('Content-Type', 'image/jpeg'); // Set the correct content type for your image
+      res.set('Content-Type', profilePicture.contentType || 'image/jpeg'); 
       res.send(profilePicture.data);
     } else {
-      res.status(404).send('Profile picture not found');
+      // Send a 204 status to indicate no profile picture found without causing an error
+      res.status(204).send(); 
     }
   }
 
@@ -70,10 +71,11 @@ export class ProfilePictureController {
   async getInvestorProfilePicture(@Param('investorId') investorId: number, @Res() res: Response) {
     const profilePicture = await this.profilePictureService.findProfilePictureForInvestor(investorId);
     if (profilePicture) {
-      res.set('Content-Type', 'image/jpeg'); // Set the correct content type for your image
+      res.set('Content-Type', profilePicture.contentType || 'image/jpeg'); 
       res.send(profilePicture.data);
     } else {
-      res.status(404).send('Profile picture not found');
+      // Send a 204 status to avoid console errors
+      res.status(204).send();
     }
   }
 
