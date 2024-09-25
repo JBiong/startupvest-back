@@ -23,4 +23,5 @@ export class ProfilePicture {
   @OneToOne(() => Investor, (investor) => investor.profilePicture)
   @JoinColumn()
   investor: Investor;
+  contentType: string;
 }
