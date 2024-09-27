@@ -17,7 +17,7 @@ export class CapTableInvestorService {
   }
 
   async findAll(userId: number): Promise<CapTableInvestor[]> {
-    return this.capTableInvestorRepository.find({ where: { user: { id: userId }} });
+    return this.capTableInvestorRepository.find({ where: { user: { id: userId }, isDeleted: false, investorRemoved: false } });
   }
 
   async findOne(id: number): Promise<CapTableInvestor> {
@@ -26,7 +26,7 @@ export class CapTableInvestorService {
 
   async findTopInvestorByUser(userId: number): Promise<{ topInvestorName: string, totalInvestment: number } | null> {
     const topInvestor = await this.capTableInvestorRepository.findOne({
-        where: { user: { id: userId } },
+        where: { user: { id: userId }, isDeleted: false, investorRemoved: false },
         relations: ['investor'], // Ensure 'investor' relation is fetched
         order: { totalInvestment: 'DESC' }, // Sort by totalInvestment descending
     });

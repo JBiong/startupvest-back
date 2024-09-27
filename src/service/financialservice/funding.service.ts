@@ -307,6 +307,10 @@ export class FundingRoundService {
         const { title, shares, capTable } = capTableInvestor;
         const minimumShare = capTable.minimumShare; // Get the minimum share from the funding round
         const totalInvestment = shares * minimumShare;
+        // Filter out the removed investors
+        if (capTableInvestor.investorRemoved === true) {
+          return; // Skip this investor if they are marked as removed
+      }
   
         if (investorDataMap.has(id)) {
           const existingData = investorDataMap.get(id);
