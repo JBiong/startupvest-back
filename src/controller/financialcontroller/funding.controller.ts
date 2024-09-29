@@ -20,17 +20,12 @@ export class FundingRoundController {
   ) { }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
-    console.log('Authorization Header:', authorizationHeader);
-
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
 
     const token = authorizationHeader.replace('Bearer ', '');
-    console.log('Token:', token);
-
     const payload = jwt.verify(token, 'secretKey');
-    console.log('Payload:', payload);
 
     return payload.userId;
   }
@@ -55,11 +50,11 @@ export class FundingRoundController {
       this.logger.log('Extracted investor IDs:', investorIds);
 
       const userId = this.getUserIdFromToken(request.headers['authorization']);
-
       const createdFunding = await this.fundingRoundService.create(startupId, fundingRoundData as FundingRound, investorIds, shares, titles, userId);
-
       this.logger.log('Funding round created:', JSON.stringify(createdFunding));
+
       return createdFunding;
+      
     } catch (error) {
       this.logger.error('Failed to create funding round:', error);
       throw new HttpException('Failed to create funding round', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -180,23 +175,13 @@ async getAllInvestorDataByEachCompany(@Param('companyId') companyId: number): Pr
 //     return this.fundingRoundService.getTotalFundedPerMonth(startupId);
 //   }
 @Get('monthly-funding/:userId')
-async getTotalMonthlyFunding(@Param('userId') userId: string): Promise<any> {
-  const numericUserId = parseInt(userId, 10);
+    async getMonthlyFunding(@Param('userId') userId: number, @Query('year') year: number) {
+        return this.fundingRoundService.getTotalMonthlyFunding(userId, year);
+    }
 
-  if (isNaN(numericUserId)) {
-    throw new BadRequestException('Invalid user ID format');
-  }
-
-  try {
-    return await this.fundingRoundService.getTotalMonthlyFunding(numericUserId);
-  } catch (error) {
-    throw new NotFoundException(error.message);
-  }
-}
-
-@Get('company-monthly-funding/:companyId')
-  async getCompanyMonthlyFunding(@Param('companyId') companyId: number) {
-    return this.fundingRoundService.getTotalMonthlyFundingByCompany(companyId);
-  }
+    @Get('company-monthly-funding/:companyId')
+    async getCompanyMonthlyFunding(@Param('companyId') companyId: number, @Query('year') year: number) {
+        return this.fundingRoundService.getTotalMonthlyFundingByCompany(companyId, year);
+    }
 }
 

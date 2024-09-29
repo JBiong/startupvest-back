@@ -367,71 +367,77 @@ export class FundingRoundService {
     }
   }  
 
-  async getTotalMonthlyFunding(userId: number): Promise<any> {
+  async getTotalMonthlyFunding(userId: number, year: number): Promise<any> {
     try {
-      // Fetch companies associated with the user
-      const userCompanies = await this.fundingRoundRepository.createQueryBuilder('fundingRound')
-        .innerJoinAndSelect('fundingRound.startup', 'startup')
-        .innerJoinAndSelect('startup.user', 'user')
-        .where('user.id = :userId', { userId })
-        .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
-        .getMany();
-  
-      // Check if userCompanies is not empty
-      if (!userCompanies.length) {
-        throw new NotFoundException('No funding rounds found for the specified user');
-      }
-  
-      const monthlyTotals = new Map<string, number>();
-  
-      userCompanies.forEach(round => {
-        const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
-        if (!monthlyTotals.has(month)) {
-          monthlyTotals.set(month, 0);
+        // Fetch companies associated with the user, filtered by year
+        const userCompanies = await this.fundingRoundRepository.createQueryBuilder('fundingRound')
+            .innerJoinAndSelect('fundingRound.startup', 'startup')
+            .innerJoinAndSelect('startup.user', 'user')
+            .where('user.id = :userId', { userId })
+            .andWhere('YEAR(fundingRound.createdAt) = :year', { year })
+            .andWhere('fundingRound.isDeleted = 0') 
+            .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
+            .getMany();
+
+        // Check if userCompanies is not empty
+        if (!userCompanies.length) {
+            throw new NotFoundException('No funding rounds found for the specified user and year');
         }
-        monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
-      });
-  
-      return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
+
+        const monthlyTotals = new Map<string, number>();
+
+        userCompanies.forEach(round => {
+            const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
+            if (!monthlyTotals.has(month)) {
+                monthlyTotals.set(month, 0);
+            }
+            monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
+        });
+
+        return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
     } catch (error) {
-      this.logger.error('Error calculating total monthly funding:', error.message);
-      throw new InternalServerErrorException('Error calculating total monthly funding');
+        this.logger.error('Error calculating total monthly funding:', error.message);
+        throw new InternalServerErrorException('Error calculating total monthly funding');
     }
-  }
+}
 
 
-  async getTotalMonthlyFundingByCompany(companyId: number): Promise<any> {
-    try {
-      // Fetch funding rounds associated with the specified company
+
+async getTotalMonthlyFundingByCompany(companyId: number, year: number): Promise<any> {
+  try {
+      // Fetch funding rounds associated with the specified company, filtered by year
       const companyFundingRounds = await this.fundingRoundRepository.createQueryBuilder('fundingRound')
-        .innerJoinAndSelect('fundingRound.startup', 'startup')
-        .where('startup.id = :companyId', { companyId })
-        .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
-        .getMany();
-  
+          .innerJoinAndSelect('fundingRound.startup', 'startup')
+          .where('startup.id = :companyId', { companyId })
+          .andWhere('YEAR(fundingRound.createdAt) = :year', { year })
+          .andWhere('fundingRound.isDeleted = 0')  // Filter by year
+          .select(['fundingRound.createdAt', 'fundingRound.moneyRaised'])
+          .getMany();
+
       // Check if companyFundingRounds is not empty
       if (!companyFundingRounds.length) {
-        throw new NotFoundException('No funding rounds found for the specified company');
+          throw new NotFoundException('No funding rounds found for the specified company and year');
       }
-  
+
       const monthlyTotals = new Map<string, number>();
-  
+
       // Aggregate the money raised by month
       companyFundingRounds.forEach(round => {
-        const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
-        if (!monthlyTotals.has(month)) {
-          monthlyTotals.set(month, 0);
-        }
-        monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
+          const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
+          if (!monthlyTotals.has(month)) {
+              monthlyTotals.set(month, 0);
+          }
+          monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
       });
-  
+
       // Convert the map to an array of objects
       return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
-    } catch (error) {
+  } catch (error) {
       this.logger.error('Error calculating total monthly funding by company:', error.message);
       throw new InternalServerErrorException('Error calculating total monthly funding by company');
-    }
   }
+}
+
   
 
   // async getTotalFundedPerMonth(): Promise<{ month: string, totalAmount: number }[]> {
