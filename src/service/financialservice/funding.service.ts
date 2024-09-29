@@ -146,19 +146,34 @@ export class FundingRoundService {
 
       // Create a map for quick lookup
       const existingCapTableInvestorMap = new Map<number, CapTableInvestor>();
-      existingCapTableInvestors.forEach(investor => existingCapTableInvestorMap.set(investor.investor.id, investor));
+      existingCapTableInvestors.forEach(investor => {
+          existingCapTableInvestorMap.set(investor.investor.id, investor);
+      });
 
       const updatedCapTableInvestors: CapTableInvestor[] = [];
+
+      // Set of investor IDs received in the update data
+      const investorIdsInUpdate = new Set(investorData.map(data => data.id));
+
+      // Deactivate investors not in the current update data
+      for (const investor of existingCapTableInvestors) {
+          if (!investorIdsInUpdate.has(investor.investor.id)) {
+              // Mark the investor as removed (inactive) if not part of the new data
+              investor.investorRemoved = true;
+              updatedCapTableInvestors.push(investor);
+          }
+      }
 
       // Update existing investors and add new investors
       for (const { id: investorId, shares, title, totalInvestment } of investorData) {
           let capTableInvestor = existingCapTableInvestorMap.get(investorId);
 
           if (capTableInvestor) {
-              // Update existing investor shares and title
+              // If investor exists, update their shares, title, and reactivate if needed
               capTableInvestor.shares = shares;
               capTableInvestor.title = title;
               capTableInvestor.totalInvestment = minimumShare * shares; // Ensure totalInvestment is correctly calculated
+              capTableInvestor.investorRemoved = false; // Mark as active again if previously removed
 
               // Assign the userId to the existing cap table investor
               capTableInvestor.user = { id: userId } as User;
@@ -170,7 +185,8 @@ export class FundingRoundService {
                   shares: shares,
                   title: title,
                   totalInvestment: minimumShare * shares, // Calculate totalInvestment
-                  user: { id: userId } as User // Assign the userId here
+                  user: { id: userId } as User,
+                  investorRemoved: false // Mark new investors as active
               });
           }
 
@@ -182,7 +198,9 @@ export class FundingRoundService {
       await this.capTableInvestorRepository.save(updatedCapTableInvestors);
 
       // Recalculate the money raised
-      fundingRound.moneyRaised = updatedCapTableInvestors.reduce((acc, investor) => acc + investor.totalInvestment, 0);
+      fundingRound.moneyRaised = updatedCapTableInvestors
+          .filter(investor => !investor.investorRemoved) // Only count active investors
+          .reduce((acc, investor) => acc + investor.totalInvestment, 0);
 
       // Save the updated funding round
       const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
@@ -289,6 +307,10 @@ export class FundingRoundService {
         const { title, shares, capTable } = capTableInvestor;
         const minimumShare = capTable.minimumShare; // Get the minimum share from the funding round
         const totalInvestment = shares * minimumShare;
+        // Filter out the removed investors
+        if (capTableInvestor.investorRemoved === true) {
+          return; // Skip this investor if they are marked as removed
+      }
   
         if (investorDataMap.has(id)) {
           const existingData = investorDataMap.get(id);
