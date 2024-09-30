@@ -14,6 +14,7 @@ export class UserService {
 
   async create(userData: User): Promise<User> {
     const hashedPassword = await hash(userData.password, 10); // Hash the password
+    const role = userData.role || 'user';
     const user = this.usersRepository.create({ ...userData, password: hashedPassword });
     return this.usersRepository.save(user);
   }
@@ -41,6 +42,10 @@ export class UserService {
     const existingUser = await this.findById(id);
     if (!existingUser) {
       throw new NotFoundException('User not found');
+    }
+
+    if (userData.role) {
+      existingUser.role = userData.role; // Update the role if provided
     }
     // Update user details
     const updatedUser = await this.usersRepository.save({ ...existingUser, ...userData });

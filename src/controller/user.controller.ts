@@ -31,9 +31,9 @@ export class UsersController {
       throw new UnauthorizedException();
     }
 
-    const jwt = sign({ userId: user.id }, 'secretKey'); // Sign the JWT with the user's ID
+    const jwt = sign({ userId: user.id, role: user.role }, 'secretKey'); // Sign the JWT with the user's ID
 
-    return { message: 'Login successful', jwt, userId: user.id };
+    return { message: 'Login successful', jwt, userId: user.id,role: user.role, };
   }
   
   @Post('check-email')
