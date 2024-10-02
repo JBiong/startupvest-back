@@ -56,4 +56,32 @@ export class UserService {
     return this.usersRepository.find();
   }
 
+  async getUserRegistrationByMonth(year: number): Promise<any> {
+    try {
+        const userRegistrations = await this.usersRepository.createQueryBuilder('user')
+            .select('DATE_FORMAT(user.createdAt, "%Y-%m")', 'month') // Format to "YYYY-MM"
+            .addSelect('COUNT(user.id)', 'count') // This will be a number
+            .where('YEAR(user.createdAt) = :year', { year })
+            .groupBy('month')
+            .getRawMany();
+
+        // Convert count to a number
+        const formattedRegistrations = userRegistrations.map(registration => ({
+            month: registration.month,
+            count: Number(registration.count) // Ensure count is a number
+        }));
+
+        return formattedRegistrations; // Return the formatted registrations
+    } catch (error) {
+        console.error('Error fetching user registrations:', error);
+        throw new Error('Could not fetch user registrations');
+    }
+}
+
+
+  
+  
+
+  
+
 }

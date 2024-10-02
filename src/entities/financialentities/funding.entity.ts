@@ -8,6 +8,9 @@ export class FundingRound {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({length: 500})
+  fundingName: string;
+
   @Column({ length: 500 })
   fundingType: string;
 

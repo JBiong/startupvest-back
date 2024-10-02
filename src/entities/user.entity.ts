@@ -1,9 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import { Investor } from './businessprofileentities/investor.entity';
 import { ProfilePicture } from './profilepictureentities/profilepicture.entity';
 import { Activity } from './activityentities/activity.entity';
 import { CapTableInvestor } from './financialentities/capInvestor.entity';
+import { timestamp } from 'rxjs';
 
 
 @Entity()
@@ -25,7 +26,11 @@ export class User {
 
   @Column({ length: 500 })
   gender: string;
-  
+
+  @CreateDateColumn()  // Automatically adds the current timestamp when the row is created
+  createdAt: Date;
+
+ 
 
   // @Column({ length: 500 })
   // password: string;

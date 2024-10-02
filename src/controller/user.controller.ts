@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UnauthorizedException, Req, Put, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, UnauthorizedException, Req, Put, Param, NotFoundException, Query } from '@nestjs/common';
 import { UserService } from 'src/service/user.service';
 import { User } from 'src/entities/user.entity';
 import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
@@ -87,5 +87,19 @@ export class UsersController {
   @Get('all')
   async findAllUsers(): Promise<User[]> {
     return this.userService.findAll();
+  }
+  
+  @Get('registrations-by-month')
+  async getUserRegistrationsByMonth(@Query('year') year: number) {
+    try {
+      if (!year) {
+        throw new Error('Year is required');
+      }
+      const userRegistrations = await this.userService.getUserRegistrationByMonth(year);
+      return userRegistrations;
+    } catch (error) {
+      console.error('Error fetching user registrations:', error);
+      throw new Error('Could not fetch user registrations');
+    }
   }
 }
