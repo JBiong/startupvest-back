@@ -138,16 +138,15 @@ export class FundingRoundController {
   }
 
   @Get(':companyId/investors/all')
-async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number) {
+  async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number): Promise<{ investors: InvestorData[], fundingRound: FundingRound }> {
     try {
-        const investors = await this.fundingRoundService.getAllInvestorsDataOfAllTheCompany(companyId);
-        // Return an empty array if no investors are found
-        return investors.length ? investors : [];
+      const result = await this.fundingRoundService.getAllInvestorsDataOfAllTheCompany(companyId);
+      return result;
     } catch (error) {
-        this.logger.error(`Failed to fetch investors for company ${companyId}:`, error);
-        throw new HttpException('Failed to fetch investors', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.logger.error(`Failed to fetch investors and funding round for company ${companyId}:`, error);
+      throw new HttpException('Failed to fetch investors and funding round', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+  }
 
   // Remove this method as it duplicates functionality
 // @Get('investors/all')

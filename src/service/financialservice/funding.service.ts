@@ -287,34 +287,37 @@ export class FundingRoundService {
       throw error;
     }
   }
-  async getAllInvestorsDataOfAllTheCompany(companyId: number): Promise<InvestorData[]> {
+
+  async getAllInvestorsDataOfAllTheCompany(companyId: number): Promise<{ investors: InvestorData[], fundingRound: FundingRound }> {
     try {
-      const totalMoneyRaised = await this.getTotalMoneyRaisedForStartup(companyId);
-  
-      const capTableInvestors = await this.capTableInvestorRepository.find({
-        where: {
-          capTable: { startup: { id: companyId } },
-          isDeleted: false,
-        },
-        relations: ['investor', 'capTable', 'capTable.startup'],
+      const fundingRound = await this.fundingRoundRepository.findOne({
+        where: { startup: { id: companyId } },
+        relations: ['startup', 'capTableInvestors', 'capTableInvestors.investor'],
       });
-  
+
+      if (!fundingRound) {
+        throw new InternalServerErrorException('Funding round not found for the company');
+      }
+
+      const totalMoneyRaised = fundingRound.moneyRaised;
+
       const investorDataMap = new Map<number, InvestorData>();
-  
-      capTableInvestors.forEach((capTableInvestor) => {
+
+      fundingRound.capTableInvestors.forEach((capTableInvestor) => {
         const { id, firstName, lastName } = capTableInvestor.investor;
         const investorName = `${firstName} ${lastName}`;
-        const { title, shares, capTable } = capTableInvestor;
-        const minimumShare = capTable.minimumShare; // Get the minimum share from the funding round
-        const totalInvestment = shares * minimumShare;
+        const { title, shares } = capTableInvestor;
+        const minimumShare = fundingRound.minimumShare;
+        const totalInvestment = shares * Number(minimumShare);
+
         // Filter out the removed investors
         if (capTableInvestor.investorRemoved === true) {
           return; // Skip this investor if they are marked as removed
-      }
-  
+        }
+
         if (investorDataMap.has(id)) {
           const existingData = investorDataMap.get(id);
-          existingData.shares += shares
+          existingData.shares += shares;
           existingData.totalShares += totalInvestment;
           existingData.totalInvestment += totalInvestment;
           existingData.percentage = totalMoneyRaised ? (existingData.totalInvestment / totalMoneyRaised) * 100 : 0;
@@ -325,20 +328,26 @@ export class FundingRoundService {
             title,
             shares,
             totalShares: totalInvestment,
-            totalInvestment: totalInvestment, // Store the totalInvestment
+            totalInvestment: totalInvestment,
             percentage: totalMoneyRaised ? (totalInvestment / totalMoneyRaised) * 100 : 0,
           });
         }
       });
-  
-      return Array.from(investorDataMap.values());
+
+      const investors = Array.from(investorDataMap.values());
+
+      // Remove sensitive or unnecessary information from the funding round
+      const { capTableInvestors, ...fundingRoundData } = fundingRound;
+
+      return { 
+        investors,
+        fundingRound: fundingRoundData as FundingRound
+      };
     } catch (error) {
       this.logger.error('Error fetching all investor data:', error.message);
       throw new InternalServerErrorException('Error fetching all investor data');
     }
-  }  
-  
-  
+  }
 
   async getAllInvestorDataByEachCompany(companyId: number): Promise<InvestorData[]> {
     try {
@@ -415,7 +424,7 @@ export class FundingRoundService {
             }
             monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
         });
-
+ 
         return Array.from(monthlyTotals.entries()).map(([month, total]) => ({ month, total }));
     } catch (error) {
         this.logger.error('Error calculating total monthly funding:', error.message);
