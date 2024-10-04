@@ -3,6 +3,7 @@ import { StartupService } from 'src/service/businessprofileservice/startup.servi
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import { UserService } from 'src/service/user.service';
+import { FundingRound } from 'src/entities/financialentities/funding.entity';
 
 @Controller('startups')
 export class StartupsController {
@@ -37,8 +38,19 @@ export class StartupsController {
 
   @Get('all')
   async findAllStartups(): Promise<Startup[]> {
-    return this.startupService.findAllStartups();
+    try {
+      const startups = await this.startupService.findAllStartupsWithFundingRounds();
+      if (!startups || startups.length === 0) {
+      }
+      return startups;
+    } catch (error) {
+    }
   }
+
+  // @Get('all')
+  // async findAllStartups(): Promise<Startup[]> {
+  //   return this.startupService.findAllStartups();
+  // }
 
   // In StartupsController
   // @Get()

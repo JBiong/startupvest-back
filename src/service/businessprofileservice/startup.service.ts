@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
+import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Injectable()
@@ -34,8 +35,15 @@ export class StartupService {
     return this.startupsRepository.save(startup);
   }
 
-  async findAllStartups(): Promise<Startup[]> {
-    return this.startupsRepository.find({ where: { isDeleted: false } });
+  // async findAllStartups(): Promise<Startup[]> {
+  //   return this.startupsRepository.find({ where: { isDeleted: false } });
+  // }
+
+  async findAllStartupsWithFundingRounds(): Promise<Startup[]> {
+    return this.startupsRepository.find({
+      where: { isDeleted: false },
+      relations: ['fundingRounds', 'fundingRounds.capTableInvestors', 'fundingRounds.capTableInvestors.investor'],
+    });
   }
 
   async findAll(userId: number): Promise<Startup[]> {
