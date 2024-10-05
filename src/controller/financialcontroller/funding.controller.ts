@@ -138,13 +138,13 @@ export class FundingRoundController {
   }
 
   @Get(':companyId/investors/all')
-  async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number): Promise<{ investors: InvestorData[], fundingRound: FundingRound }> {
+  async getAllInvestorsDataOfAllTheCompany(@Param('companyId') companyId: number): Promise<{ investors: InvestorData[], fundingRounds: FundingRound[] }> {
     try {
       const result = await this.fundingRoundService.getAllInvestorsDataOfAllTheCompany(companyId);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to fetch investors and funding round for company ${companyId}:`, error);
-      throw new HttpException('Failed to fetch investors and funding round', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.logger.error(`Failed to fetch investors and funding rounds for company ${companyId}:`, error);
+      throw new HttpException('Failed to fetch investors and funding rounds', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
