@@ -5,6 +5,7 @@ import { ProfilePicture } from './profilepictureentities/profilepicture.entity';
 import { Activity } from './activityentities/activity.entity';
 import { CapTableInvestor } from './financialentities/capInvestor.entity';
 import { timestamp } from 'rxjs';
+import {ValidateIf} from 'class-validator'
 
 
 @Entity()
@@ -30,7 +31,8 @@ export class User {
   @CreateDateColumn()  // Automatically adds the current timestamp when the row is created
   createdAt: Date;
 
- 
+  @ValidateIf((o) => o.role === 'CFO')
+  startupCode?: string;
 
   // @Column({ length: 500 })
   // password: string;
@@ -38,7 +40,7 @@ export class User {
   password?: string;
 
   //Roles
-  @Column({default: 'user'})
+  @Column({default: 'CEO'})
   role:string;
 
   //Relationships

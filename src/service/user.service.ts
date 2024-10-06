@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { compare, hash } from 'bcrypt'; // Import bcrypt
+import { Startup } from 'src/entities/businessprofileentities/startup.entity';
+
 
 @Injectable()
 export class UserService {
@@ -10,14 +12,61 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Startup)
+    private startupRepository: Repository<Startup>,
+
   ) { }
+
 
   async create(userData: User): Promise<User> {
     const hashedPassword = await hash(userData.password, 10); // Hash the password
-    const role = userData.role || 'user';
-    const user = this.usersRepository.create({ ...userData, password: hashedPassword });
+    const role = userData.role || 'CEO'; // Default to CEO if no role is provided
+  
+    // Handle CFO registration with startup code validation
+    if (role === 'CFO') {
+      if (!userData.startupCode) {
+        throw new BadRequestException('Startup code is required for CFO.');
+      }
+  
+      // Check if the startup code exists in the database
+      const startup = await this.startupRepository.findOne({
+        where: { startupCode: userData.startupCode },
+      });
+  
+      if (!startup) {
+        throw new NotFoundException('Invalid startup code.');
+      }
+  
+      // Create the CFO user and associate them with the startup
+      const cfoUser = this.usersRepository.create({
+        ...userData,
+        password: hashedPassword, // Save hashed password
+        role: 'CFO', // Assign CFO role
+      });
+  
+      cfoUser.startups = [startup]; // Associate the CFO with the startup
+  
+      return this.usersRepository.save(cfoUser);
+    }
+  
+    // For CEO or other roles, create the user (CEO as default)
+    const user = this.usersRepository.create({
+      ...userData,
+      password: hashedPassword, // Save hashed password
+      role, 
+    });
+  
     return this.usersRepository.save(user);
   }
+  
+  
+
+  // async create(userData: User): Promise<User> {
+  //   const hashedPassword = await hash(userData.password, 10); // Hash the password
+  //   const role = userData.role || 'user';
+  //   const user = this.usersRepository.create({ ...userData, password: hashedPassword });
+  //   return this.usersRepository.save(user);
+  // }
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { email } });

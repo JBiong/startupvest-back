@@ -64,6 +64,9 @@ export class Startup {
   @Column({ length: 500 })
   linkedIn: string;
 
+  @Column({length: 500})
+  startupCode: string;
+
   @OneToMany(() => FundingRound, fundingRound => fundingRound.startup)
   fundingRounds: FundingRound[];
 
