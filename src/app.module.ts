@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AuthModule } from './auth/auth.module';
 import { User } from './entities/user.entity';
 import { UsersModule } from './module/user.module';
 import { Startup } from './entities/businessprofileentities/startup.entity';
@@ -19,6 +18,10 @@ import { Bookmark } from './entities/mappingentities/bookmark.entity';
 import { Like } from './entities/mappingentities/like.entity';
 import { Report } from './entities/mappingentities/report.entity';
 import { View } from './entities/mappingentities/view.entity';
+import { LikeModule } from './module/mappingmodule/like.module';
+import { BookmarkModule } from './module/mappingmodule/bookmark.module';
+import { ReportModule } from './module/mappingmodule/report.module';
+import { ViewModule } from './module/mappingmodule/view.module';
 
 
 
@@ -48,7 +51,11 @@ import { View } from './entities/mappingentities/view.entity';
     StartupModule,
     InvestorModule,
     FundingModule,
-    ActivityModule
+    ActivityModule,
+    BookmarkModule,
+    LikeModule,
+    ReportModule,
+    ViewModule
   ],
   controllers: [],
   providers: [],
