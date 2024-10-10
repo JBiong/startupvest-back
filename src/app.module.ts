@@ -29,19 +29,11 @@ import { ViewModule } from './module/mappingmodule/view.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      // host: '127.0.0.1',
-      // port: 3306,
-      // username: 'root',
-      // password: 'JBiong213940981.',
-      // database: 'startupvest',
-
-      // TODO: temporary, revert to above after testing
-      host: 'autorack.proxy.rlwy.net',
-      port: 23163,
+      host: '127.0.0.1',
+      port: 3306,
       username: 'root',
-      password: 'RoSQGWWdZQDHLsgmYISmykDWujXTlmZl',
-      database: 'railway',
-      
+      password: 'JBiong213940981.',
+      database: 'startupvest',
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity,Bookmark,Like,Report,View],
       synchronize: true,
       // logging:true
