@@ -64,6 +64,25 @@ export class UsersController {
     const updatedUser = await this.userService.update(Number(userId), userData);
     return updatedUser;
   }
+  
+  @Get('current')
+  async getCurrentUser(@Req() request: Request): Promise<User> {
+    try {
+      const userId = this.getUserIdFromToken(request.headers['authorization']);
+      const user = await this.userService.findById(userId);
+      
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Exclude sensitive information
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      throw new UnauthorizedException('Invalid token or user not found');
+    }
+  }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
     console.log('Authorization Header:', authorizationHeader);
