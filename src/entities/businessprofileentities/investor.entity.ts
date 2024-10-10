@@ -80,4 +80,22 @@ export class Investor {
   this.id = this.user.id;
   }
 
+  // startupsphere
+  @Column({ name: "location_lat", type: "decimal", precision: 20, scale: 16, nullable: true })
+  locationLat: number;
+
+  @Column({ name: "location_lng", type: "decimal", precision: 20, scale: 16, nullable: true })
+  locationLng: number;
+
+  @Column({ name: "location_name", nullable: true })
+  locationName: string;
+
+  @Column({ default: 0 })
+  likes: number;
+
+  @Column({ default: 0 })
+  bookmarks: number;
+
+  @Column({ default: 0 })
+  views: number;
 }
