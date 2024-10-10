@@ -27,13 +27,13 @@ export class BookmarkService {
 
   async create(bookmark: Partial<Bookmark>): Promise<void> {
     if (bookmark.startup.id) {
-      await this.startupService.incrementLike(bookmark.startup.id);
+      await this.startupService.incrementBookmark(bookmark.startup.id);
       await this.bookmarkRepository.insert({
         startup: { id: bookmark.startup.id },
         user: { id: bookmark.user.id },
       });
     } else if (bookmark.investor.id) {
-      await this.investorService.incrementLike(bookmark.investor.id);
+      await this.investorService.incrementBookmark(bookmark.investor.id);
       await this.bookmarkRepository.insert({
         investor: { id: bookmark.investor.id },
         user: { id: bookmark.user.id },
@@ -42,12 +42,12 @@ export class BookmarkService {
   }
 
   async startupRemove(userId: number, startupId: number): Promise<void> {
-    await this.startupService.decrementLike(startupId);
+    await this.startupService.decrementBookmark(startupId);
     await this.bookmarkRepository.delete({ user: { id: userId }, startup: { id: startupId } });
   }
 
   async investorRemove(userId: number, investorId: number): Promise<void> {
-    await this.investorService.decrementLike(investorId);
+    await this.investorService.decrementBookmark(investorId);
     await this.bookmarkRepository.delete({ user: { id: userId }, investor: { id: investorId } });
   }
 
