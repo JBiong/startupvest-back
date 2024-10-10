@@ -15,6 +15,10 @@ import { ProfilePicture } from './entities/profilepictureentities/profilepicture
 import { CapTableInvestor } from './entities/financialentities/capInvestor.entity';
 import { ActivityModule } from './module/activitymodule/activity.module';
 import { Activity } from './entities/activityentities/activity.entity';
+import { Bookmark } from './entities/mappingentities/bookmark.entity';
+import { Like } from './entities/mappingentities/like.entity';
+import { Report } from './entities/mappingentities/report.entity';
+import { View } from './entities/mappingentities/view.entity';
 
 
 
@@ -35,7 +39,7 @@ import { Activity } from './entities/activityentities/activity.entity';
       password: 'RoSQGWWdZQDHLsgmYISmykDWujXTlmZl',
       database: 'railway',
       
-      entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity],
+      entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity,Bookmark,Like,Report,View],
       synchronize: true,
       // logging:true
     }),

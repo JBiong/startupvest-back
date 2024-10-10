@@ -5,7 +5,7 @@ export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: "user_id", type: "int8" })
+  @Column({ name: "user_id" })
   generated_by: number;
 
   @Column()
