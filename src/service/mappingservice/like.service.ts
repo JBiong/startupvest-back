@@ -20,7 +20,7 @@ export class LikeService {
 
   async create(like: Partial<Like>): Promise<void> {
     if (like.startup.id) {
-      await this.startupService.incrementBookmark(like.startup.id);
+      await this.startupService.incrementLike(like.startup.id);
       await this.likeRepository.insert({
         startup: { id: like.startup.id },
         user: { id: like.user.id },
