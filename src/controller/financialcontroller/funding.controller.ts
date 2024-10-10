@@ -182,5 +182,26 @@ async getAllInvestorDataByEachCompany(@Param('companyId') companyId: number): Pr
     async getCompanyMonthlyFunding(@Param('companyId') companyId: number, @Query('year') year: number) {
         return this.fundingRoundService.getTotalMonthlyFundingByCompany(companyId, year);
     }
+
+
+  @Put(':id/investment') // Assuming you have JWT authentication in place
+  async invest(
+    @Param('id') fundingRoundId: number,
+    @Body() body: { shares: number; investorId: number },
+  ) {
+    const {  shares, investorId } = body;
+    const investment = await this.fundingRoundService.createInvestment(fundingRoundId, investorId, shares);
+    return { message: 'Investment successful', investment };
+  }
+
+  @Put(':id/status')
+  async updateInvestmentStatus(
+    @Param('id') id: number,
+    @Body('status') status: string,
+  ) {
+    return await this.fundingRoundService.updateInvestmentStatus(id, status);
+  }
+
+
 }
 
