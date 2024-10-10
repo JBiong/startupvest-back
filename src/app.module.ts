@@ -22,11 +22,19 @@ import { Activity } from './entities/activityentities/activity.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
+      // host: '127.0.0.1',
+      // port: 3306,
+      // username: 'root',
+      // password: 'JBiong213940981.',
+      // database: 'startupvest',
+
+      // TODO: temporary, revert to above after testing
+      host: 'autorack.proxy.rlwy.net',
+      port: 23163,
       username: 'root',
-      password: 'JBiong213940981.',
-      database: 'startupvest',
+      password: 'RoSQGWWdZQDHLsgmYISmykDWujXTlmZl',
+      database: 'railway',
+      
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity],
       synchronize: true,
       // logging:true
