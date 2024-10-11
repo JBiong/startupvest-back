@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Investor } from '../businessprofileentities/investor.entity';
 import { FundingRound } from './funding.entity';
 import { User } from '../user.entity';
@@ -33,4 +33,10 @@ export class CapTableInvestor {
 
   @ManyToOne(() => User, (user) => user.capTableInvestor)
     user: User;
+
+  @Column({ default: 'accepted' }) // Default status to 'pending'
+  status: string;
+
+  @CreateDateColumn()  // Automatically adds the current timestamp when the row is created
+  createdAt: Date;
 }

@@ -149,100 +149,83 @@ export class FundingRoundService {
       title: string;
       totalInvestment: number;
     }[],
-    userId: number // Add userId here
+    userId: number
   ): Promise<FundingRound> {
     // Retrieve the existing funding round
     const fundingRound = await this.findById(id);
     if (!fundingRound) {
       throw new NotFoundException("Funding round not found");
     }
-
-    // Retrieve the minimum share from the existing funding round
+  
     const minimumShare = fundingRound.minimumShare;
-
-    // Update the funding round with new data
-    Object.assign(fundingRound, updateData);
-
+    
     // Retrieve all existing cap table investors for this funding round
-    const existingCapTableInvestors =
-      await this.capTableInvestorRepository.find({
-        where: { capTable: { id: fundingRound.id } },
-        relations: ["investor"],
-      });
-
-    // Create a map for quick lookup
+    const existingCapTableInvestors = await this.capTableInvestorRepository.find({
+      where: { capTable: { id: fundingRound.id } },
+      relations: ["investor"],
+    });
+  
     const existingCapTableInvestorMap = new Map<number, CapTableInvestor>();
-    existingCapTableInvestors.forEach((investor) => {
+    existingCapTableInvestors.forEach(investor => {
       existingCapTableInvestorMap.set(investor.investor.id, investor);
     });
-
+  
     const updatedCapTableInvestors: CapTableInvestor[] = [];
-
-    // Set of investor IDs received in the update data
-    const investorIdsInUpdate = new Set(investorData.map((data) => data.id));
-
-    // Deactivate investors not in the current update data
-    for (const investor of existingCapTableInvestors) {
-      if (!investorIdsInUpdate.has(investor.investor.id)) {
-        // Mark the investor as removed (inactive) if not part of the new data
-        investor.investorRemoved = true;
-        updatedCapTableInvestors.push(investor);
-      }
-    }
-
-    // Update existing investors and add new investors
-    for (const {
-      id: investorId,
-      shares,
-      title,
-      totalInvestment,
-    } of investorData) {
+    let updatedMoneyRaised = fundingRound.moneyRaised;
+  
+    // Process investors in the update data
+    for (const { id: investorId, shares, title, totalInvestment } of investorData) {
       let capTableInvestor = existingCapTableInvestorMap.get(investorId);
-
+  
       if (capTableInvestor) {
-        // If investor exists, update their shares, title, and reactivate if needed
+        // Check if the shares have changed
+        const previousInvestment = capTableInvestor.shares * minimumShare;
+        if (shares !== capTableInvestor.shares) {
+          // Update the total investment if the shares have changed
+          updatedMoneyRaised -= previousInvestment; // Subtract old investment
+          updatedMoneyRaised += shares * minimumShare; // Add new investment
+        }
+  
+        // Update the existing cap table investor's data
         capTableInvestor.shares = shares;
         capTableInvestor.title = title;
-        capTableInvestor.totalInvestment = minimumShare * shares; // Ensure totalInvestment is correctly calculated
-        capTableInvestor.investorRemoved = false; // Mark as active again if previously removed
-
+        capTableInvestor.totalInvestment = shares * minimumShare;
+        capTableInvestor.investorRemoved = false;
+  
         // Assign the userId to the existing cap table investor
         capTableInvestor.user = { id: userId } as User;
       } else {
-        // Create new investor
+        // Add a new investor
+        const newInvestment = shares * minimumShare;
+        updatedMoneyRaised += newInvestment; // Add the new investment
+  
         capTableInvestor = this.capTableInvestorRepository.create({
-          capTable: fundingRound, // Ensure capTable is set
+          capTable: fundingRound,
           investor: { id: investorId } as Investor,
           shares: shares,
           title: title,
-          totalInvestment: minimumShare * shares, // Calculate totalInvestment
+          totalInvestment: newInvestment,
           user: { id: userId } as User,
-          investorRemoved: false, // Mark new investors as active
+          investorRemoved: false,
         });
       }
-
-      // Add to updated investors list
+  
       updatedCapTableInvestors.push(capTableInvestor);
     }
-
-    // Save all updated and new investors to the cap table
+  
+    // Save the updated or new investors
     await this.capTableInvestorRepository.save(updatedCapTableInvestors);
-
-    // Recalculate the money raised
-    fundingRound.moneyRaised = updatedCapTableInvestors
-      .filter((investor) => !investor.investorRemoved) // Only count active investors
-      .reduce((acc, investor) => acc + investor.totalInvestment, 0);
-
-    // Save the updated funding round
-    const updatedFundingRound =
-      await this.fundingRoundRepository.save(fundingRound);
-
-    // Manually set the updated cap table investors into the updatedFundingRound for return
+  
+    // Update the money raised and funding round
+    fundingRound.moneyRaised = updatedMoneyRaised;
+  
+    // Save the funding round
+    const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
     updatedFundingRound.capTableInvestors = updatedCapTableInvestors;
-
+  
     return updatedFundingRound;
   }
-
+  
   async softDelete(id: number): Promise<void> {
     const fundingRound = await this.fundingRoundRepository.findOne({
       where: { id },
@@ -551,6 +534,74 @@ export class FundingRoundService {
         "Error calculating total monthly funding by company"
       );
     }
+  }
+
+
+  async createInvestment(
+    fundingRoundId: number,
+    investorId: number,
+    shares: number,
+  ): Promise<CapTableInvestor> {
+    // Fetch the funding round and investor entities
+    const fundingRound = await this.fundingRoundRepository.findOne({ where: { id: fundingRoundId } });
+    const investor = await this.investorRepository.findOne({ where: { id: investorId } });
+    
+
+    if (!fundingRound || !investor) {
+      throw new Error('Funding round or investor not found');
+    }
+
+    // Calculate total investment
+    const totalInvestment = shares * fundingRound.minimumShare;
+
+    // fundingRound.moneyRaised += totalInvestment;
+    // await this.fundingRoundRepository.save(fundingRound);
+
+    // Create a new CapTableInvestor entry
+    const capTableInvestor = this.capTableInvestorRepository.create({
+      capTable: fundingRound,
+      investor: investor,
+      title: " ",
+      shares: shares,
+      totalInvestment: totalInvestment,
+      status: 'pending',
+    });
+
+    // Save to the database
+    return await this.capTableInvestorRepository.save(capTableInvestor);
+  }
+
+
+  async updateInvestmentStatus(
+    capTableInvestorId: number,
+    newStatus: string,
+  ): Promise<CapTableInvestor> {
+    // Find the cap table investor entry
+    const capTableInvestor = await this.capTableInvestorRepository.findOne({
+      where: { id: capTableInvestorId },
+      relations: ['capTable'], // Ensure fundingRound (capTable) is also fetched
+    });
+
+    if (!capTableInvestor) {
+      throw new Error('CapTableInvestor not found');
+    }
+
+    // Update the status
+    capTableInvestor.status = newStatus;
+
+    // If the new status is 'accepted', update the funding round's moneyRaised
+    if (newStatus === 'accepted') {
+      const fundingRound = capTableInvestor.capTable;
+      fundingRound.moneyRaised += capTableInvestor.totalInvestment;
+      await this.fundingRoundRepository.save(fundingRound); // Save updated funding round
+    }
+
+    if (newStatus === 'rejected') {
+      // Optionally handle additional logic for rejection if needed
+      console.log(`Investment ${capTableInvestorId} rejected, no updates to moneyRaised.`);
+    }
+
+    return await this.capTableInvestorRepository.save(capTableInvestor);
   }
 
   // async getTotalFundedPerMonth(): Promise<{ month: string, totalAmount: number }[]> {
