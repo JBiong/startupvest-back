@@ -65,7 +65,7 @@ export class InvestorsController {
 
 
   @Get(':ids')
-  findByIds(@Param('id') ids: number[]) {
+  findByIds(@Param('ids') ids: number[]) {
     return this.investorService.findByIds(ids);
   }
 
