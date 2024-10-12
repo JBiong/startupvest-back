@@ -27,7 +27,7 @@ dotenv.config();
       host: '127.0.0.1',
       port: 3306,
       username: 'root',
-      password: 'sandkiller1234',
+      password: 'JBiong213940981.',
       database: 'startupvest',
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity],
       synchronize: true,
