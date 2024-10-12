@@ -11,7 +11,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Startup]), JwtModule.register({
+  imports: [TypeOrmModule.forFeature([User,Startup,Startup]), JwtModule.register({
     secret: process.env.JWT_SECRET,
   }),],
   controllers: [UsersController],
