@@ -22,6 +22,7 @@ export class UserService {
   ) { }
 
 
+
   async create(userData: User): Promise<User> {
     const hashedPassword = await hash(userData.password, 10);
     const role = userData.role || 'CEO';
