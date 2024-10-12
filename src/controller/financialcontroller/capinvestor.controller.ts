@@ -1,6 +1,8 @@
-import { Controller, Get, Param, Put, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, InternalServerErrorException, Param, Put, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { CapTableInvestorService } from 'src/service/financialservice/capinvestor.service';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
+import { request } from 'http';
+import { CapTableInvestor } from 'src/entities/financialentities/capInvestor.entity';
 
 @Controller('cap-table-investor')
 export class CapTableInvestorController {
@@ -23,6 +25,24 @@ export class CapTableInvestorController {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
     return this.capTableInvestorService.findAll(userId);
   }
+  @Get('all')
+    async findAllInvestors(@Query('userId') userId: number): Promise<CapTableInvestor[]> {
+        // Fetch investors filtered by user ID
+        return this.capTableInvestorService.findAllInvestors(userId);
+    }
+
+    @Get('investor-requests/:investorId') // Assuming you have a route parameter for the investor ID
+    async getInvestorRequests(@Param('investorId') investorId: number) {
+        try {
+            const requests = await this.capTableInvestorService.findAllInvestorRequests(investorId);
+            return requests; // Return the filtered requests
+        } catch (error) {
+            console.error('Unable to fetch investor requests:', error);
+            throw new InternalServerErrorException('Unable to fetch investor requests');
+        }
+    }
+    
+
 
   @Get(':capTableId')
   async getInvestorInformation(@Param('capTableId') capTableId: number) {

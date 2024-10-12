@@ -6,6 +6,8 @@ import { compare, hash } from 'bcrypt'; // Import bcrypt
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
 import { MailService } from './mailer.service';
+import { Startup } from 'src/entities/businessprofileentities/startup.entity';
+
 
 @Injectable()
 export class UserService {
@@ -13,8 +15,12 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Startup)
+    private startupRepository: Repository<Startup>,
+
     private mailService: MailService, // Add a mail service for sending emails
   ) { }
+
 
   async create(userData: User): Promise<User> {
     const hashedPassword = await hash(userData.password, 10);
@@ -79,6 +85,15 @@ export class UserService {
       throw new BadRequestException('Invalid or expired token');
     }
   }
+  
+  
+
+  // async create(userData: User): Promise<User> {
+  //   const hashedPassword = await hash(userData.password, 10); // Hash the password
+  //   const role = userData.role || 'user';
+  //   const user = this.usersRepository.create({ ...userData, password: hashedPassword });
+  //   return this.usersRepository.save(user);
+  // }
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { email } });
