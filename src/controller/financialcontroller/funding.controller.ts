@@ -187,7 +187,7 @@ async getAllInvestorDataByEachCompany(@Param('companyId') companyId: number): Pr
   @Put(':id/investment') // Assuming you have JWT authentication in place
   async invest(
     @Param('id') fundingRoundId: number,
-    @Body() body: { shares: number; investorId: number },
+    @Body() body: { shares: number; investorId: number},
   ) {
     const {  shares, investorId } = body;
     const investment = await this.fundingRoundService.createInvestment(fundingRoundId, investorId, shares);

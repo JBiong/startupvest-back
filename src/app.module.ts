@@ -25,7 +25,7 @@ import { Activity } from './entities/activityentities/activity.entity';
       host: '127.0.0.1',
       port: 3306,
       username: 'root',
-      password: 'JBiong213940981.',
+      password: 'sandkiller1234',
       database: 'startupvest',
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity],
       synchronize: true,

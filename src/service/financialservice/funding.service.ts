@@ -136,7 +136,7 @@ export class FundingRoundService {
 
   async findAll(): Promise<FundingRound[]> {
     return this.fundingRoundRepository.find({
-      where: { isDeleted: false },
+      where: { isDeleted: false,  },
       relations: ["startup", "capTableInvestors", "capTableInvestors.investor"],
     });
   }
@@ -554,64 +554,99 @@ export class FundingRoundService {
     // Fetch the funding round and investor entities
     const fundingRound = await this.fundingRoundRepository.findOne({ where: { id: fundingRoundId } });
     const investor = await this.investorRepository.findOne({ where: { id: investorId } });
-    
-
+  
     if (!fundingRound || !investor) {
       throw new Error('Funding round or investor not found');
     }
-
-    // Calculate total investment
-    const totalInvestment = shares * fundingRound.minimumShare;
-
-    // fundingRound.moneyRaised += totalInvestment;
-    // await this.fundingRoundRepository.save(fundingRound);
-
-    // Create a new CapTableInvestor entry
+  
+    // Check if the investor has any 'pending' investment in the funding round
+    const pendingInvestment = await this.capTableInvestorRepository.findOne({
+      where: { capTable: { id: fundingRoundId }, investor: { id: investorId }, status: 'pending' },
+    });
+  
+    // If a pending investment exists, throw an error to block further investment
+    if (pendingInvestment) {
+      throw new Error('You already have a pending investment in this funding round. Please wait until it is accepted before investing again.');
+    }
+  
+    // If no previous pending investment exists, create a new CapTableInvestor entry with 'pending' status
+    const newTotalInvestment = Number(shares) * fundingRound.minimumShare;
     const capTableInvestor = this.capTableInvestorRepository.create({
       capTable: fundingRound,
       investor: investor,
-      title: " ",
-      shares: shares,
-      totalInvestment: totalInvestment,
-      status: 'pending',
+      title: " ", // Add any title if necessary
+      shares: Number(shares), // Ensure the shares are treated as a number
+      totalInvestment: newTotalInvestment,
+      status: 'pending', // New investments start with a pending status
     });
-
-    // Save to the database
+  
+    // Save the new investment to the database
     return await this.capTableInvestorRepository.save(capTableInvestor);
   }
+  
 
 
   async updateInvestmentStatus(
     capTableInvestorId: number,
     newStatus: string,
+    additionalShares?: number, // Optional parameter for additional shares when status is 'accepted'
   ): Promise<CapTableInvestor> {
-    // Find the cap table investor entry
+    // Find the cap table investor entry (the one with pending status)
     const capTableInvestor = await this.capTableInvestorRepository.findOne({
       where: { id: capTableInvestorId },
-      relations: ['capTable'], // Ensure fundingRound (capTable) is also fetched
+      relations: ['capTable','investor'], // Ensure fundingRound (capTable) is also fetched
     });
-
+  
     if (!capTableInvestor) {
       throw new Error('CapTableInvestor not found');
     }
-
-    // Update the status
-    capTableInvestor.status = newStatus;
-
-    // If the new status is 'accepted', update the funding round's moneyRaised
+  
+    // Only proceed with merging logic if the new status is 'accepted'
     if (newStatus === 'accepted') {
       const fundingRound = capTableInvestor.capTable;
-      fundingRound.moneyRaised += capTableInvestor.totalInvestment;
-      await this.fundingRoundRepository.save(fundingRound); // Save updated funding round
+  
+      // Check if there's an existing accepted investment for this investor in the same funding round
+      const existingAcceptedInvestment = await this.capTableInvestorRepository.findOne({
+        where: {
+          capTable: { id: fundingRound.id },
+          investor: { id: capTableInvestor.investor.id },
+          status: 'accepted',
+        },
+      });
+  
+      if (existingAcceptedInvestment) {
+        // Combine shares with the existing accepted investment
+        existingAcceptedInvestment.shares = Number(existingAcceptedInvestment.shares) + Number(capTableInvestor.shares);
+  
+        // Recalculate the total investment
+        existingAcceptedInvestment.totalInvestment = existingAcceptedInvestment.shares * fundingRound.minimumShare;
+  
+        // Save the updated accepted investment
+        await this.capTableInvestorRepository.save(existingAcceptedInvestment);
+  
+        // Remove the pending investment (since its shares are merged)
+        await this.capTableInvestorRepository.remove(capTableInvestor);
+  
+        // Return the merged accepted investment
+        return existingAcceptedInvestment;
+      }
+  
+      // If no existing accepted investment is found, update the current investment's status to 'accepted'
+      capTableInvestor.status = 'accepted';
+      fundingRound.moneyRaised += capTableInvestor.totalInvestment; // Update moneyRaised
+      await this.fundingRoundRepository.save(fundingRound);
     }
-
+  
     if (newStatus === 'rejected') {
-      // Optionally handle additional logic for rejection if needed
+      // Optionally handle rejection logic
       console.log(`Investment ${capTableInvestorId} rejected, no updates to moneyRaised.`);
     }
-
+  
+    // Save the updated investment (whether accepted or rejected)
     return await this.capTableInvestorRepository.save(capTableInvestor);
   }
+  
+  
 
   // async getTotalFundedPerMonth(): Promise<{ month: string, totalAmount: number }[]> {
   //   try {
