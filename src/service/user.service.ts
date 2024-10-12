@@ -24,18 +24,61 @@ export class UserService {
 
   async create(userData: User): Promise<User> {
     const hashedPassword = await hash(userData.password, 10);
-    const role = userData.role || 'user';
-    const user = this.usersRepository.create({ ...userData, password: hashedPassword, isVerified: false });
+    const role = userData.role || 'CEO';
+    // const user = this.usersRepository.create({ ...userData, password: hashedPassword, isVerified: false });
+
+    // Handle CFO registration with startup code validation
+    if (role === 'CFO') {
+      if (!userData.startupCode) {
+        throw new BadRequestException('Startup code is required for CFO.');
+      }
+  
+      // Check if the startup code exists in the database
+      const startup = await this.startupRepository.findOne({
+        where: { startupCode: userData.startupCode },
+      });
+  
+      if (!startup) {
+        throw new NotFoundException('Invalid startup code.');
+      }
+  
+      // Create the CFO user and associate them with the startup
+      const cfoUser = this.usersRepository.create({
+        ...userData,
+        password: hashedPassword, // Save hashed password
+        role: 'CFO', // Assign CFO role
+      });
+  
+      cfoUser.startups = [startup]; // Associate the CFO with the startup
+  
+      return this.usersRepository.save(cfoUser);
+    }
+
+    // For CEO or other roles, create the user (CEO as default)
+    const user = this.usersRepository.create({
+      ...userData,
+      password: hashedPassword, // Save hashed password
+      role, 
+      isVerified: false
+    });
 
     const savedUser = await this.usersRepository.save(user);
 
-    // Generate a verification token (could be a JWT or unique token)
     const verificationToken = sign({ userId: savedUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Send the verification email with the token
     await this.mailService.sendVerificationEmail(savedUser.email, verificationToken);
-
+  
     return savedUser;
+
+    // const savedUser = await this.usersRepository.save(user);
+
+    // // Generate a verification token (could be a JWT or unique token)
+    // const verificationToken = sign({ userId: savedUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // // Send the verification email with the token
+    // await this.mailService.sendVerificationEmail(savedUser.email, verificationToken);
+
+    // return savedUser;
   }
 
   async verifyUser(token: string): Promise<void> {
