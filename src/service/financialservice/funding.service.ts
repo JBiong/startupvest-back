@@ -620,6 +620,10 @@ export class FundingRoundService {
   
         // Recalculate the total investment
         existingAcceptedInvestment.totalInvestment = existingAcceptedInvestment.shares * fundingRound.minimumShare;
+
+        fundingRound.moneyRaised += capTableInvestor.totalInvestment;
+
+        await this.fundingRoundRepository.save(fundingRound);
   
         // Save the updated accepted investment
         await this.capTableInvestorRepository.save(existingAcceptedInvestment);
