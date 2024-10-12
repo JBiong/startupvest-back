@@ -41,6 +41,15 @@ export class User {
   @Column({default: 'user'})
   role:string;
 
+  @Column({ default: false })
+  isVerified: boolean; // New field to track verification status
+
+  @Column({ nullable: true })
+  resetPasswordToken?: string; // For storing the reset token (OTP)
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires?: Date; // For storing the token expiration time
+
   //Relationships
 
   @OneToMany(() => Startup, startup => startup.user)

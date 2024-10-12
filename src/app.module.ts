@@ -16,7 +16,9 @@ import { CapTableInvestor } from './entities/financialentities/capInvestor.entit
 import { ActivityModule } from './module/activitymodule/activity.module';
 import { Activity } from './entities/activityentities/activity.entity';
 
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 
 @Module({
   imports: [
