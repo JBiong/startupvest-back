@@ -48,11 +48,16 @@ export class UserService {
         ...userData,
         password: hashedPassword, // Save hashed password
         role: 'CFO', // Assign CFO role
+        isVerified: false
       });
   
       cfoUser.startups = [startup]; // Associate the CFO with the startup
-  
-      return this.usersRepository.save(cfoUser);
+
+      const savedCfoUser = await this.usersRepository.save(cfoUser);
+      const verificationToken = sign({ userId: savedCfoUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      await this.mailService.sendVerificationEmail(savedCfoUser.email, verificationToken);
+      return savedCfoUser;
+
     }
 
     // For CEO or other roles, create the user (CEO as default)
