@@ -98,6 +98,7 @@ async findAllInvestorRequests(investorId: number): Promise<any[]> {
           title: request.title,
           totalinvestment: request.totalInvestment,
           createdAt: request.createdAt,
+          currency: request.capTable.moneyRaisedCurrency,
       }));
   } catch (error) {
       console.error('Error fetching investor requests:', error);
