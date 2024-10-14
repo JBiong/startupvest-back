@@ -35,7 +35,7 @@ dotenv.config();
       port: Number(process.env.MYSQL_PORT) || 3306,
       username: process.env.MYSQL_USER || 'root',
       password: process.env.MYSQL_PASSWORD || 'JBiong213940981.',
-      database: process.env.MYSQL_PORT || 'startupvest',
+      database: process.env.MYSQL_DATABASE || 'startupvest',
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity,Bookmark,Like,Report,View],
       synchronize: true,
       // logging:true
