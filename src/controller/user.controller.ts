@@ -63,34 +63,85 @@ export class UsersController {
       throw new BadRequestException('Email verification failed');
     }
   }
-
   @Get('verify/:token')
-async verifyEmail(@Param('token') token: string): Promise<string> {
-  try {
-    // Verify the token using JWT
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId; // Extract user ID from the token
-
-    // Find the user based on the user ID
-    const user = await this.userService.findById(userId);
-    if (!user) {
-      throw new BadRequestException('User not found');
+  async verifyEmail(@Param('token') token: string): Promise<string> {
+    try {
+      // Verify the token using JWT
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId; // Extract user ID from the token
+  
+      // Find the user based on the user ID
+      const user = await this.userService.findById(userId);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+  
+      // Check if user is already verified (optional)
+      if (user.isVerified) {
+        return `
+          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+            <h2 style="color: #004A98; text-align: center;">Email Already Verified</h2>
+            <p style="text-align: center;">Your email is already verified. You can now proceed to 
+              <a href="http://localhost:3001/login" style="color: #004A98;">login</a> to your account.</p>
+          </div>`;
+      }
+  
+      // Update user's isVerified status to true
+      user.isVerified = true;
+      await this.usersRepository.save(user);
+  
+      // Return the success HTML
+      return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email Verified</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              color: #333;
+              line-height: 1.6;
+              margin: 0;
+              padding: 0;
+            }
+            .container {
+              max-width: 600px;
+              margin: 50px auto;
+              padding: 20px;
+              background-color: #fff;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              border-radius: 8px;
+            }
+            h2 {
+              color: #004A98;
+              text-align: center;
+            }
+            p {
+              font-size: 18px;
+              text-align: center;
+            }
+            .success-message {
+              color: green;
+              font-weight: bold;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>Email Successfully Verified!</h2>
+            <p class="success-message">Thank you for verifying your email. Your account is now activated and ready to use.</p>
+            <p>You can now proceed to <a href="http://localhost:3001/login" style="color: #004A98;">login</a> to your account.</p>
+          </div>
+        </body>
+        </html>`;
+    } catch (error) {
+      throw new BadRequestException('Invalid or expired token');
     }
-
-    // Check if user is already verified (optional)
-    if (user.isVerified) {
-      return 'Your email is already verified.';
-    }
-
-    // Update user's isVerified status to true
-    user.isVerified = true;
-    await this.usersRepository.save(user);
-
-    return 'Email successfully verified!';
-  } catch (error) {
-    throw new BadRequestException('Invalid or expired token');
   }
-}
+  
   
   @Post('check-email')
   async checkEmail(@Body() { email }: { email: string }): Promise<{ exists: boolean }> {

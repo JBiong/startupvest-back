@@ -32,7 +32,7 @@ export class CapTableInvestorService {
                 status: 'pending',
                 capTable: {
                   startup: {
-                    user: { id: userId }, // Filter by the user ID
+                    ceo: { id: userId }, // Filter by the user ID
                   },
               },
             },

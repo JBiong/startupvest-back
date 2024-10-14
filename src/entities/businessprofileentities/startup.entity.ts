@@ -74,8 +74,11 @@ export class Startup {
   @Column({ default: false })
   isDeleted: boolean;
 
-  @ManyToOne(() => User, user => user.startups)
-  user: User;
+  @ManyToOne(() => User, user => user.ceostartups)
+  ceo: User;
+  
+  @ManyToOne(() => User, user => user.cfoStartups)
+  cfo: User;
 
   @OneToOne(() => ProfilePicture, (profilePicture) => profilePicture.startup)
   profilePicture: ProfilePicture;

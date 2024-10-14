@@ -451,14 +451,14 @@ export class FundingRoundService {
 
 
 
-  async getTotalMonthlyFunding(userId: number, year: number): Promise<any> {
+  async getTotalMonthlyFunding(ceoId: number, year: number): Promise<any> {
     try {
       // Fetch companies associated with the user, filtered by year
       const userCompanies = await this.fundingRoundRepository
         .createQueryBuilder("fundingRound")
         .innerJoinAndSelect("fundingRound.startup", "startup")
-        .innerJoinAndSelect("startup.user", "user")
-        .where("user.id = :userId", { userId })
+        .innerJoinAndSelect("startup.ceo", "ceo")
+        .where("ceo.id = :ceoId", { ceoId })
         .andWhere("YEAR(fundingRound.createdAt) = :year", { year })
         .andWhere("fundingRound.isDeleted = 0")
         .select(["fundingRound.createdAt", "fundingRound.moneyRaised"])
@@ -594,23 +594,24 @@ export class FundingRoundService {
     // Find the cap table investor entry (the one with pending status)
     const capTableInvestor = await this.capTableInvestorRepository.findOne({
       where: { id: capTableInvestorId },
-      relations: ['capTable','investor'], // Ensure fundingRound (capTable) is also fetched
+      relations: ['capTable', 'investor'], // Ensure fundingRound (capTable) is also fetched
     });
   
     if (!capTableInvestor) {
       throw new Error('CapTableInvestor not found');
     }
   
-    // Only proceed with merging logic if the new status is 'accepted'
-    if (newStatus === 'accepted') {
-      const fundingRound = capTableInvestor.capTable;
+    const fundingRound = capTableInvestor.capTable;
   
-      // Check if there's an existing accepted investment for this investor in the same funding round
+    // Handle accepted status
+    if (newStatus === 'accepted') {
+      // Check for an existing accepted investment for this investor in the same funding round
       const existingAcceptedInvestment = await this.capTableInvestorRepository.findOne({
         where: {
           capTable: { id: fundingRound.id },
           investor: { id: capTableInvestor.investor.id },
           status: 'accepted',
+          investorRemoved: false, // Only find accepted investments where the investor is not removed
         },
       });
   
@@ -620,13 +621,13 @@ export class FundingRoundService {
   
         // Recalculate the total investment
         existingAcceptedInvestment.totalInvestment = existingAcceptedInvestment.shares * fundingRound.minimumShare;
-
-        fundingRound.moneyRaised += capTableInvestor.totalInvestment;
-
-        await this.fundingRoundRepository.save(fundingRound);
   
-        // Save the updated accepted investment
+        // Update the moneyRaised for the funding round
+        fundingRound.moneyRaised += capTableInvestor.totalInvestment;
+  
+        // Save the updated accepted investment and the funding round
         await this.capTableInvestorRepository.save(existingAcceptedInvestment);
+        await this.fundingRoundRepository.save(fundingRound);
   
         // Remove the pending investment (since its shares are merged)
         await this.capTableInvestorRepository.remove(capTableInvestor);
@@ -635,20 +636,24 @@ export class FundingRoundService {
         return existingAcceptedInvestment;
       }
   
-      // If no existing accepted investment is found, update the current investment's status to 'accepted'
+      // If no existing accepted investment, create a new one
       capTableInvestor.status = 'accepted';
-      fundingRound.moneyRaised += capTableInvestor.totalInvestment; // Update moneyRaised
+      fundingRound.moneyRaised += capTableInvestor.totalInvestment; // Update moneyRaised for the funding round
       await this.fundingRoundRepository.save(fundingRound);
+      return await this.capTableInvestorRepository.save(capTableInvestor); // Save the new investment entry
     }
   
+    // Handle rejection
     if (newStatus === 'rejected') {
-      // Optionally handle rejection logic
-      console.log(`Investment ${capTableInvestorId} rejected, no updates to moneyRaised.`);
+      capTableInvestor.status = 'rejected';
+      console.log(`Investment ${capTableInvestorId} rejected, ignoring previous investments.`);
     }
   
     // Save the updated investment (whether accepted or rejected)
     return await this.capTableInvestorRepository.save(capTableInvestor);
   }
+  
+  
   
   
 

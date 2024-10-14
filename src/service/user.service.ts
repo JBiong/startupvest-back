@@ -51,9 +51,11 @@ export class UserService {
         isVerified: false
       });
   
-      cfoUser.startups = [startup]; // Associate the CFO with the startup
+       // Associate the CFO with the startup
 
       const savedCfoUser = await this.usersRepository.save(cfoUser);
+      startup.cfo = savedCfoUser;
+      
       const verificationToken = sign({ userId: savedCfoUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
       await this.mailService.sendVerificationEmail(savedCfoUser.email, verificationToken);
       return savedCfoUser;
@@ -166,16 +168,21 @@ export class UserService {
   async update(id: number, userData: Partial<User>): Promise<User> {
     const existingUser = await this.findById(id);
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+        throw new NotFoundException('User not found');
     }
 
+    // Merge the updated data into the existing user object
+    Object.assign(existingUser, userData);
+
+    // If role is provided in userData, update it
     if (userData.role) {
-      existingUser.role = userData.role; // Update the role if provided
+        existingUser.role = userData.role; // This is already being handled
     }
-    // Update user details
-    const updatedUser = await this.usersRepository.save({ ...existingUser, ...userData });
-    return updatedUser;
-  }
+
+    // Save the updated user
+    return this.usersRepository.save(existingUser);
+}
+
 
   async findAll(): Promise<User[]> {
     return this.usersRepository.find();

@@ -29,7 +29,7 @@ export class StartupService {
   }
 
   async create(userId: number, startupData: Startup): Promise<Startup> {
-    const startup = this.startupsRepository.create({ ...startupData, user: { id: userId } });
+    const startup = this.startupsRepository.create({ ...startupData, ceo: { id: userId } });
     return this.startupsRepository.save(startup);
   }
 
@@ -49,7 +49,7 @@ export class StartupService {
   }
 
   async findAll(userId: number): Promise<Startup[]> {
-    return this.startupsRepository.find({ where: { user: { id: userId }, isDeleted: false } });
+    return this.startupsRepository.find({ where: { ceo: { id: userId }, isDeleted: false } });
   }
 
   async update(id: number, startupData: Partial<Startup>): Promise<Startup> {

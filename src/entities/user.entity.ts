@@ -28,18 +28,16 @@ export class User {
   @Column({ length: 500 })
   gender: string;
 
-  @CreateDateColumn()  // Automatically adds the current timestamp when the row is created
+  @CreateDateColumn()  
   createdAt: Date;
 
   @ValidateIf((o) => o.role === 'CFO')
   startupCode?: string;
 
-  // @Column({ length: 500 })
-  // password: string;
-  @Column({ length: 500, nullable: true }) // Make the password property optional
+  @Column({ length: 500, nullable: true }) 
   password?: string;
 
-  //Roles
+  
   @Column({default: 'CEO'})
   role:string;
 
@@ -54,15 +52,18 @@ export class User {
 
   //Relationships
 
-  @OneToMany(() => Startup, startup => startup.user)
-  startups: Startup[];
+  @OneToMany(() => Startup, startup => startup.ceo)
+  ceostartups: Startup[];
+
+  @OneToMany(() => Startup, startup => startup.cfo)
+  cfoStartups: Startup[];
 
   @OneToOne(() => Investor, investor => investor.user)
   @JoinColumn() 
   investor: Investor;
 
   @OneToMany(() => ProfilePicture, profilePicture => profilePicture.user)
-  profilePicture: ProfilePicture; // This will create a foreign key in the ProfilePicture table
+  profilePicture: ProfilePicture; 
 
   @OneToMany(() => Activity, activities => activities.user)
   activities: Activity;

@@ -19,11 +19,27 @@ export class MailService {
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const verificationUrl = `http://localhost:3000/users/verify/${token}`;
+    
     await this.transporter.sendMail({
       from: 'no-reply@startupvest.com',
       to: email,
-      subject: 'Please verify your email',
-      html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
+      subject: 'Confirm Your Email Address',
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2 style="color: #004A98;">Welcome to Startup Vest!</h2>
+          <p>Thank you for signing up! We're excited to have you on board.</p>
+          <p>To complete your registration, please confirm your email address:</p>        
+          <p style="text-align: left; margin-top: 20px;">
+            <a href="${verificationUrl}" 
+               style="background-color: #004A98; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+               Verify Your Email
+            </a>
+          </p>
+  
+          <p style="margin-top: 20px;">If you did not create this account, please ignore this email.</p>
+          <p style="margin-top: 40px;">Best regards,<br>Startup Vest Team</p>
+        </div>
+      `,
     });
   }
 
@@ -31,8 +47,17 @@ export class MailService {
     await this.transporter.sendMail({
       from: 'no-reply@startupvest.com',
       to: email,
-      subject: 'Password Reset OTP',
-      html: `<p>Your OTP for password reset is: <strong>${otp}</strong>. It will expire in 10 minutes.</p>`,
+      subject: 'Your Password Reset OTP',
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2 style="color: #FF6F61;">Password Reset Request</h2>
+          <p>We received a request to reset your password. Please use the OTP below to proceed:</p>
+          <p style="font-size: 20px; font-weight: bold; color: #FF6F61;">${otp}</p>
+          <p>This OTP is valid for the next 10 minutes. If you did not request a password reset, please disregard this email.</p>
+  
+          <p style="margin-top: 40px;">Best regards,<br>Startup Vest Team</p> 
+        </div>
+      `,
     });
   }
 }
