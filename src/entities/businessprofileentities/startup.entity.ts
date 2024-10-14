@@ -13,7 +13,7 @@ export class Startup {
   @Column({ length: 500 })
   companyName: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 1000 })
   companyDescription: string;
 
   @Column({ length: 500 })

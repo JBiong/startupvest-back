@@ -15,7 +15,7 @@ export class CapTableInvestorController {
       throw new UnauthorizedException('Authorization header is required');
     }
     const token = authorizationHeader.replace('Bearer ', '');
-    const payload = jwt.verify(token, 'secretKey');
+    const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
    
     return payload.userId;
   }
