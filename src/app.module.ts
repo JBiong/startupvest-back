@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AuthModule } from './auth/auth.module';
 import { User } from './entities/user.entity';
 import { UsersModule } from './module/user.module';
 import { Startup } from './entities/businessprofileentities/startup.entity';
@@ -15,6 +14,14 @@ import { ProfilePicture } from './entities/profilepictureentities/profilepicture
 import { CapTableInvestor } from './entities/financialentities/capInvestor.entity';
 import { ActivityModule } from './module/activitymodule/activity.module';
 import { Activity } from './entities/activityentities/activity.entity';
+import { Bookmark } from './entities/mappingentities/bookmark.entity';
+import { Like } from './entities/mappingentities/like.entity';
+import { Report } from './entities/mappingentities/report.entity';
+import { View } from './entities/mappingentities/view.entity';
+import { LikeModule } from './module/mappingmodule/like.module';
+import { BookmarkModule } from './module/mappingmodule/bookmark.module';
+import { ReportModule } from './module/mappingmodule/report.module';
+import { ViewModule } from './module/mappingmodule/view.module';
 
 import * as dotenv from 'dotenv';
 
@@ -29,7 +36,7 @@ dotenv.config();
       username: 'root',
       password: 'JBiong213940981.',
       database: 'startupvest',
-      entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity],
+      entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity,Bookmark,Like,Report,View],
       synchronize: true,
       // logging:true
     }),
@@ -38,7 +45,11 @@ dotenv.config();
     StartupModule,
     InvestorModule,
     FundingModule,
-    ActivityModule
+    ActivityModule,
+    BookmarkModule,
+    LikeModule,
+    ReportModule,
+    ViewModule
   ],
   controllers: [],
   providers: [],

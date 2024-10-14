@@ -50,7 +50,7 @@ export class CapTableInvestorController {
   }
 
   @Get(':userId/top')
-async getTopInvestorByCapTable(@Req() request: Request) {
+async getTopInvestorByCapTable(@Param('userId') userIdParam: number, @Req() request: Request) {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
     const topInvestor = await this.capTableInvestorService.findTopInvestorByUser(userId);
 
