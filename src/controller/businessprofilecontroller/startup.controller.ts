@@ -63,6 +63,11 @@ export class StartupsController {
   //   return this.startupService.findAll(userId);
   // }
 
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Startup> {
+    return this.startupService.findOne(Number(id));
+  }
+
   @Put(':id')
   async update(@Param('id') id: number, @Body() startupData: Startup): Promise<Startup> {
     return this.startupService.update(Number(id), startupData);

@@ -31,11 +31,11 @@ dotenv.config();
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
-      username: 'root',
-      password: 'JBiong213940981.',
-      database: 'startupvest',
+      host: process.env.MYSQL_HOST || '127.0.0.1',
+      port: Number(process.env.MYSQL_PORT) || 3306,
+      username: process.env.MYSQL_USER || 'root',
+      password: process.env.MYSQL_PASSWORD || 'JBiong213940981.',
+      database: process.env.MYSQL_DATABASE || 'startupvest',
       entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTableInvestor,Activity,Bookmark,Like,Report,View],
       synchronize: true,
       // logging:true
