@@ -7,6 +7,7 @@ import { MailService } from 'src/service/mailer.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { log } from 'console';
 
 @Controller('users')
 export class UsersController {
@@ -45,11 +46,13 @@ export class UsersController {
   @Post('login')
   async login(@Body() loginData: { email: string, password: string }): Promise<any> {
     const user = await this.userService.validateUser(loginData.email, loginData.password);
+    
     if (!user) {
       throw new UnauthorizedException('Invalid credentials or email not verified');
     }
 
     const jwt = sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);
+    console.log(jwt)
     return { message: 'Login successful', jwt, userId: user.id, role: user.role };
   }
 
@@ -192,7 +195,6 @@ export class UsersController {
   }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
-    console.log('Authorization Header:', authorizationHeader);
 
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is required');
@@ -200,11 +202,9 @@ export class UsersController {
 
     // Replace 'Bearer ' with an empty string to get the JWT.
     const token = authorizationHeader.replace('Bearer ', '');
-    console.log('Token:', token);
 
     // Decode the JWT to get the payload.
     const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
-    console.log('Payload:', payload);
 
     // Return the user's ID from the payload.
     return payload.userId;
