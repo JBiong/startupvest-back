@@ -19,13 +19,13 @@ export class LikeService {
   }
 
   async create(like: Partial<Like>): Promise<void> {
-    if (like.startup.id) {
+    if (like.startup?.id) {
       await this.startupService.incrementLike(like.startup.id);
       await this.likeRepository.insert({
         startup: { id: like.startup.id },
         user: { id: like.user.id },
       });
-    } else if (like.investor.id) {
+    } else if (like.investor?.id) {
       await this.investorService.incrementLike(like.investor.id);
       await this.likeRepository.insert({
         investor: { id: like.investor.id },

@@ -26,13 +26,13 @@ export class BookmarkService {
   }
 
   async create(bookmark: Partial<Bookmark>): Promise<void> {
-    if (bookmark.startup.id) {
+    if (bookmark.startup?.id) {
       await this.startupService.incrementBookmark(bookmark.startup.id);
       await this.bookmarkRepository.insert({
         startup: { id: bookmark.startup.id },
         user: { id: bookmark.user.id },
       });
-    } else if (bookmark.investor.id) {
+    } else if (bookmark.investor?.id) {
       await this.investorService.incrementBookmark(bookmark.investor.id);
       await this.bookmarkRepository.insert({
         investor: { id: bookmark.investor.id },
