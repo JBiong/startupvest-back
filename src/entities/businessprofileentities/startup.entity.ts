@@ -1,9 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { User } from 'src/entities/user.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
+import { User } from "src/entities/user.entity";
 // import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
-import { FundingRound } from '../financialentities/funding.entity';
-import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
-
+import { FundingRound } from "../financialentities/funding.entity";
+import { ProfilePicture } from "../profilepictureentities/profilepicture.entity";
+import { BudgetProposal } from "../BudgetProposalEntity/budget-proposal.entity";
+import { Customer } from "../CustomerEntity/customer.entity";
+import { Expenses } from "../ExpenseEntity/expenses.entity";
+import { Invoice } from "../InvoiceEntity/invoice.entity";
+import { Item } from "../ItemEntity/item.entity";
+import { Payment } from "../PaymentEntity/payment.entity";
+import { Project } from "../ProjectEntity/project.entity";
 
 @Entity()
 export class Startup {
@@ -64,30 +77,41 @@ export class Startup {
   @Column({ length: 500 })
   linkedIn: string;
 
-  @Column({length: 500})
+  @Column({ length: 500 })
   startupCode: string;
 
-  @OneToMany(() => FundingRound, fundingRound => fundingRound.startup)
+  @OneToMany(() => FundingRound, (fundingRound) => fundingRound.startup)
   fundingRounds: FundingRound[];
-
 
   @Column({ default: false })
   isDeleted: boolean;
 
-  @ManyToOne(() => User, user => user.ceostartups)
+  @ManyToOne(() => User, (user) => user.ceostartups)
   ceo: User;
-  
-  @ManyToOne(() => User, user => user.cfoStartups)
+
+  @ManyToOne(() => User, (user) => user.cfoStartups)
   cfo: User;
 
   @OneToOne(() => ProfilePicture, (profilePicture) => profilePicture.startup)
   profilePicture: ProfilePicture;
 
   // startupsphere
-  @Column({ name: "location_lat", type: "decimal", precision: 20, scale: 16, nullable: true })
+  @Column({
+    name: "location_lat",
+    type: "decimal",
+    precision: 20,
+    scale: 16,
+    nullable: true,
+  })
   locationLat: number;
 
-  @Column({ name: "location_lng", type: "decimal", precision: 20, scale: 16, nullable: true })
+  @Column({
+    name: "location_lng",
+    type: "decimal",
+    precision: 20,
+    scale: 16,
+    nullable: true,
+  })
   locationLng: number;
 
   @Column({ name: "location_name", nullable: true })
@@ -101,4 +125,26 @@ export class Startup {
 
   @Column({ default: 0 })
   views: number;
+
+  //finease
+  @OneToMany(() => Customer, (customer) => customer.startup)
+  customers: Customer[];
+
+  @OneToMany(() => Expenses, (expenses) => expenses.startup)
+  expenses: Expenses[];
+
+  @OneToMany(() => Item, (item) => item.startup)
+  items: Item[];
+
+  @OneToMany(() => Invoice, (invoice) => invoice.startup)
+  invoices: Invoice[];
+
+  @OneToMany(() => Payment, (payment) => payment.startup)
+  payments: Payment[];
+
+  @OneToMany(() => Project, (project) => project.startup)
+  projects: Project[];
+
+  @OneToMany(() => BudgetProposal, (budgetProposal) => budgetProposal.startup)
+  budgetProposals: BudgetProposal[];
 }

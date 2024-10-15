@@ -56,8 +56,7 @@ export class UserService {
       const savedCfoUser = await this.usersRepository.save(cfoUser);
       startup.cfo = savedCfoUser;
 
-      await this.startupRepository.save(startup);
-      
+      await this.startupRepository.save(startup)
       
       const verificationToken = sign({ userId: savedCfoUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
       await this.mailService.sendVerificationEmail(savedCfoUser.email, verificationToken);
