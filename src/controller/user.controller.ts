@@ -192,8 +192,7 @@ export class UsersController {
   }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
-    console.log('Authorization Header:', authorizationHeader);
-
+  
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
