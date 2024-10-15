@@ -64,6 +64,11 @@ export class StartupsController {
     return this.startupService.findOne(Number(id));
   }
 
+  @Get(":id/funding-rounds")
+  async findOneWithFundingRounds(@Param("id") id: string): Promise<Startup> {
+    return this.startupService.findOneWithFundingRounds(Number(id));
+  }
+
   @Put(":id")
   async update(
     @Param("id") id: number,

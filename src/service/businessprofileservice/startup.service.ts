@@ -37,6 +37,17 @@ export class StartupService {
   //   return this.startupsRepository.find({ where: { isDeleted: false } });
   // }
 
+  async findOneWithFundingRounds(id: number): Promise<Startup> {
+    return this.startupsRepository.findOne({
+      where: { id, isDeleted: false },
+      relations: [
+        "fundingRounds",
+        "fundingRounds.capTableInvestors",
+        "fundingRounds.capTableInvestors.investor",
+      ],
+    });
+  }
+
   async findAllStartupsWithFundingRounds(): Promise<Startup[]> {
     return this.startupsRepository.find({
       where: { isDeleted: false },
