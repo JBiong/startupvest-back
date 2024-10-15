@@ -21,7 +21,7 @@ export class BookmarkService {
   async findAllByUserId(userId: number): Promise<Bookmark[]> {
     return this.bookmarkRepository.find({
       where: { user: { id: userId } },
-      relations: ["user", "startup"],
+      relations: ["user", "startup", "investor"],
     });
   }
 

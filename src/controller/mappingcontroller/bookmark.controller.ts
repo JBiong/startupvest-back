@@ -37,13 +37,13 @@ export class BookmarkController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get("/:startupId")
+  @Get("/startup/:startupId")
   findallByStartupId(@Param("startupId") startupId: number) {
     return this.bookmarkService.findAllByInvestorId(startupId);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get("/:investorId")
+  @Get("/investor/:investorId")
   findAllByInvestorId(@Param("investorId") investorId: number) {
     return this.bookmarkService.findAllByInvestorId(investorId);
   }

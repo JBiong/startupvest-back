@@ -35,7 +35,7 @@ export class ViewService {
 			where: { user_id: userId },
 			order: { timestamp: "DESC" },
 			take: 20,
-			relations: ["startup"],
+			relations: ["startup", "investor"],
 		});
 	}
     
