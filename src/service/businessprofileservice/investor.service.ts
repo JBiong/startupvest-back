@@ -78,5 +78,26 @@ export class InvestorService {
     await this.investorsRepository.update(id, { isDeleted: true });
   }
 
+    //for likes,bookmarks, views
+    async incrementLike(id: number): Promise<void> {
+      await this.investorsRepository.increment({ id }, "likes", 1);
+    }
+  
+    async decrementLike(id: number): Promise<void> {
+      await this.investorsRepository.decrement({ id }, "likes", 1);
+    }
+  
+    async incrementBookmark(id: number): Promise<void> {
+      await this.investorsRepository.increment({ id }, "bookmarks", 1);
+    }
+  
+    async decrementBookmark(id: number): Promise<void> {
+      await this.investorsRepository.decrement({ id }, "bookmarks", 1);
+    }
+  
+    async incrementView(id: number): Promise<void> {
+      await this.investorsRepository.increment({ id }, "views", 1);
+    }
+
   // other methods...
 }

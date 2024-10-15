@@ -47,16 +47,7 @@ export class InvestorsController {
   async getInvestorIds(@Param('userId') userId: number): Promise<number[]> {
     return this.investorService.getInvestorIds(userId);
   }
-  // // In InvestorsController
-  // @Get('All')
-  // findAll() {
-  //   return this.investorService.findAll();
-  // }
-
-  // @Get()
-  // findAll(@Query('userId') userId: number) {
-  //   return this.investorService.findAll(userId);
-  // }
+  
   @Get('by-ids')
   async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
     const idArray = ids.split(',').map(id => parseInt(id, 10));

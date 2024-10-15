@@ -194,8 +194,7 @@ export class UsersController {
     }
   }
 
-  private getUserIdFromToken(authorizationHeader?: string): number {
-
+  private getUserIdFromToken(authorizationHeader?: string): number 
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
