@@ -1,10 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request, UnauthorizedException } from '@nestjs/common';
 import { CreateCategoryDto } from '../../dto/CategoryDto/create-category.dto';
 import { CategoryService } from 'src/service/CategoryService/category.service';
+import * as jwt from "jsonwebtoken";
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  private getUserIdFromToken(authorizationHeader?: string): number {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException("Authorization header is required");
+    }
+    const token = authorizationHeader.replace("Bearer ", "");
+    const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
+    return payload.userId;
+  }
 
   @Get()
   findAll() {
@@ -17,8 +27,9 @@ export class CategoryController {
   }
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  create(@Request() req, @Body() createCategoryDto: CreateCategoryDto) {
+    const userId = this.getUserIdFromToken(req.headers['authorization']);
+    return this.categoryService.create(userId, createCategoryDto);
   }
 
   @Delete(':id')

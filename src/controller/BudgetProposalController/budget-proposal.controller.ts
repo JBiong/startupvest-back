@@ -7,15 +7,25 @@ import {
   Patch,
   Post,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBudgetProposalDto } from 'src/dto/BudgetProposalDto/create-budget-proposal.dto';
 import { UpdateBudgetProposalDto, UpdateBudgetProposalStatusDto } from 'src/dto/BudgetProposalDto/update-budget-proposal.dto';
 import { BudgetProposalService } from 'src/service/BudgetProposalService/budget-proposal.service';
-
+import * as jwt from "jsonwebtoken";
 
 @Controller('budget-proposal')
 export class BudgetProposalController {
   constructor(private readonly budgetProsalService: BudgetProposalService) {}
+
+  private getUserIdFromToken(authorizationHeader?: string): number {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException("Authorization header is required");
+    }
+    const token = authorizationHeader.replace("Bearer ", "");
+    const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
+    return payload.userId;
+  }
 
   @Get()
   findAll() {
@@ -34,7 +44,8 @@ export class BudgetProposalController {
 
   @Post()
   create(@Request() req, @Body() createBudgetProposalDto: CreateBudgetProposalDto) {
-    return this.budgetProsalService.create(req.user.id, createBudgetProposalDto);
+    const userId = this.getUserIdFromToken(req.headers['authorization']);
+    return this.budgetProsalService.create(userId, createBudgetProposalDto);
   }
 
   @Patch(':id')

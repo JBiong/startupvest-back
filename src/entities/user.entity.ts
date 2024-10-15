@@ -67,6 +67,7 @@ export class User {
   //Relationships
 
   @OneToMany(() => Startup, (startup) => startup.ceo)
+  @JoinColumn()
   ceostartups: Startup[];
 
   @OneToMany(() => Startup, (startup) => startup.cfo)

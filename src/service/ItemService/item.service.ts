@@ -39,15 +39,15 @@ export class ItemService {
     // Fetch the user along with their associated startups
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['startups'],
+      relations: ['cfoStartups'],
     });
 
-    if (!user || user.ceostartups.length === 0) {
+    if (!user || user.cfoStartups.length === 0) {
       throw new NotFoundException('User does not belong to any startup');
     }
 
     // Assume the user (e.g. CFO) is assigned to only one startup
-    const assignedStartup = user.ceostartups[0];
+    const assignedStartup = user.cfoStartups[0];
 
     const newItem = this.itemRepository.create({
       ...createItemDto,

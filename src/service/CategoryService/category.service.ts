@@ -22,9 +22,9 @@ export class CategoryService {
     return this.categoryRepository.findOne({ where: { id } });
   }
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(userId: number, createCategoryDto: CreateCategoryDto) {
     const user = await this.userRepository.findOne({
-      where: { id: createCategoryDto.userId },
+      where: { id: userId },
     });
 
     if (!user) {

@@ -36,14 +36,14 @@ export class InvoiceService {
     // Fetch the user's associated startups
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['startups'],
+      relations: ['cfoStartups'],
     });
 
-    if (!user || user.ceostartups.length === 0) {
+    if (!user || user.cfoStartups.length === 0) {
       throw new NotFoundException('User does not belong to any startup');
     }
 
-    const assignedStartupId = user.ceostartups[0].id;
+    const assignedStartupId = user.cfoStartups[0].id;
 
     // Create the invoice using the customerId from DTO
     const invoice = this.invoiceRepository.create({

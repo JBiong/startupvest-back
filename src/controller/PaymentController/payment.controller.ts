@@ -7,14 +7,25 @@ import {
   Patch,
   Post,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreatePaymentDto } from 'src/dto/PaymentDto/create-payment.dto';
 import { UpdatePaymentDto } from 'src/dto/PaymentDto/update-payment.dto';
 import { PaymentService } from 'src/service/PaymentService/payment.service';
+import * as jwt from "jsonwebtoken";
 
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
+
+  private getUserIdFromToken(authorizationHeader?: string): number {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException("Authorization header is required");
+    }
+    const token = authorizationHeader.replace("Bearer ", "");
+    const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
+    return payload.userId;
+  }
 
   @Get()
   findAll() {
@@ -33,7 +44,8 @@ export class PaymentController {
 
   @Post()
   create(@Request() req, @Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(req.user.id, createPaymentDto);
+    const userId = this.getUserIdFromToken(req.headers['authorization']);
+    return this.paymentService.create(userId, createPaymentDto);
   }
 
   @Patch(':id')
