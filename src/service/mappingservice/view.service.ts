@@ -22,7 +22,7 @@ export class ViewService {
               user_id: view.user_id
             });
           } else if (view.investor?.id) {
-            await this.investorService.incrementLike(view.investor.id);
+            await this.investorService.incrementView(view.investor.id);
             await this.viewRepository.insert({
               investor: { id: view.investor.id },
               user_id: view.user_id
