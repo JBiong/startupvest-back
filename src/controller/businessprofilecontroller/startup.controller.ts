@@ -48,6 +48,11 @@ export class StartupsController {
     return this.startupService.findAll(userId);
   }
 
+  @Get('guest')
+  async findAllStartupsforguest(): Promise<Startup[]> {
+    return this.startupService.findAllStarupsforguest();
+  }
+
   @Get("all")
   async findAllStartups(): Promise<Startup[]> {
     try {

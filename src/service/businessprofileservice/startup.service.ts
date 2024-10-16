@@ -16,9 +16,9 @@ export class StartupService {
   // }
 
   // In StartupService
-  // async findAll(): Promise<Startup[]> {
-  //   return this.startupsRepository.find();
-  // }
+  async findAllStarupsforguest(): Promise<Startup[]> {
+    return this.startupsRepository.find();
+  }
 
   // async findAll(userId: number): Promise<Startup[]> {
   //   return this.startupsRepository.find({ where: { user: { id: userId } } });
