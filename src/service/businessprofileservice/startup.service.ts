@@ -25,7 +25,7 @@ export class StartupService {
   // }
 
   async findOne(id: number): Promise<Startup> {
-    return this.startupsRepository.findOne({ where: { id } });
+    return this.startupsRepository.findOne({ where: { id }, relations: ['ceo'] });
   }
 
   async create(userId: number, startupData: Startup): Promise<Startup> {
