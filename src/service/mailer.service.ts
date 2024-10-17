@@ -18,7 +18,7 @@ export class MailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const verificationUrl = `http://localhost:3000/users/verify/${token}`;
+    const verificationUrl = `https://startupvest-back.up.railway.app/users/verify/${token}`;
     
     await this.transporter.sendMail({
       from: 'no-reply@startupvest.com',

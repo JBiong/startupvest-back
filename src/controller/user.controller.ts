@@ -85,7 +85,7 @@ export class UsersController {
           <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
             <h2 style="color: #004A98; text-align: center;">Email Already Verified</h2>
             <p style="text-align: center;">Your email is already verified. You can now proceed to 
-              <a href="http://localhost:3001/login" style="color: #004A98;">login</a> to your account.</p>
+              <a href="https://startupvest-back.up.railway.app/login" style="color: #004A98;">login</a> to your account.</p>
           </div>`;
       }
   
