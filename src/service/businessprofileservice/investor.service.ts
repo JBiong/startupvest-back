@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import { In } from 'typeorm';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class InvestorService {
@@ -13,19 +14,6 @@ export class InvestorService {
     private investorsRepository: Repository<Investor>,
   ) { }
 
-  // async create(investorData: Investor): Promise<Investor> {
-  //   const investor = this.investorsRepository.create(investorData);
-  //   return this.investorsRepository.save(investor);
-  // }
-
-  // // In InvestorService
-  // async findAll(): Promise<Investor[]> {
-  //   return this.investorsRepository.find();
-  // }
-
-  // async findAll(userId: number): Promise<Investor[]> {
-  //   return this.investorsRepository.find({ where: { user: { id: userId } } });
-  // }
   async findByIds(ids: number[]): Promise<Investor[]> {
     console.log('findByIds received ids:', ids);
     if (ids.length === 0) {
@@ -40,8 +28,22 @@ export class InvestorService {
     return this.investorsRepository.findOne({ where: { id } });
   }
 
-  async create(userId: number, investorData: Investor): Promise<Investor> {
-    const investor = this.investorsRepository.create({ ...investorData, user: { id: userId } });
+  async create(userId: number, user: User): Promise<Investor> {
+    const investor = this.investorsRepository.create({
+      id: userId, // Set the investor ID from the user ID
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.email,
+      contactInformation: user.contactNumber,
+      gender: user.gender,
+      biography: user.biography || '',
+      facebook: user.facebook || '',
+      twitter: user.twitter || '',
+      instagram: user.instagram || '',
+      linkedIn: user.linkedIn || '',
+      user: { id: userId }, // Link the user
+    });
+
     return this.investorsRepository.save(investor);
   }
 

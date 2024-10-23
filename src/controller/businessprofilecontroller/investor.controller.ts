@@ -3,6 +3,7 @@ import { InvestorService } from 'src/service/businessprofileservice/investor.ser
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import { UserService } from 'src/service/user.service';
+import { User } from 'src/entities/user.entity';
 
 @Controller('investors')
 export class InvestorsController {
@@ -25,11 +26,12 @@ export class InvestorsController {
   }
 
   @Post('create')
-  async create(@Req() request: Request, @Body() investorData: Investor): Promise<any> {
-    const userId = this.getUserIdFromToken(request.headers['authorization']);
-    await this.investorService.create(userId, investorData);
-    return { message: 'Investor created successfully' };
-  }
+  async create(@Req() request: Request, @Body() userData: User): Promise<any> {
+  const userId = this.getUserIdFromToken(request.headers['authorization']);
+  const investor = await this.investorService.create(userId, userData);
+  return { message: 'Investor created successfully', investor };
+}
+
 
   @Get()
   findAllCreatedUser(@Req() request: Request) {

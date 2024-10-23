@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
+import { UserService } from './service/user.service';
 
 require('dotenv').config(); // Load environment variables from .env file
 
@@ -17,6 +18,10 @@ async function bootstrap() {
 	const document = SwaggerModule.createDocument(app, config);
 	SwaggerModule.setup("docs", app, document, { yamlDocumentUrl: "/docs/spec.yaml" });
 
+	const userService = app.get(UserService);
+  	await userService.createDefaultAdmin();
+	
   await app.listen(3000);
+  
 }
 bootstrap();

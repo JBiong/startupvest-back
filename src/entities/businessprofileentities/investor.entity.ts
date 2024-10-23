@@ -24,37 +24,22 @@ export class Investor {
   @Column({ length: 500 })
   gender: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   biography: string;
 
-  @Column({ length: 500 })
-  streetAddress: string;
-
-  @Column({ length: 500 })
-  country: string;
-
-  @Column({ length: 500 })
-  city: string;
-
-  @Column({ length: 500 })
-  state: string;
-
-  @Column({ length: 500 })
-  postalCode: string;
-
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   website: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   facebook: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   twitter: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   instagram: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   linkedIn: string;
 
   @Column({ default: false })

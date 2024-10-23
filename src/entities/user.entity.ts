@@ -37,11 +37,35 @@ export class User {
   @Column({ length: 500 })
   email: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500 , nullable: true })
   contactNumber: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500 , nullable: true })
   gender: string;
+
+  @Column({length:1000, nullable: true})
+  biography: string;
+
+  @Column({ length: 500, nullable: true })
+  facebook: string;
+
+  @Column({ length: 500, nullable: true })
+  twitter: string;
+
+  @Column({ length: 500, nullable: true })
+  instagram: string;
+
+  @Column({ length: 500, nullable: true })
+  linkedIn: string;
+
+  @Column({ name: "location_name", nullable: true })
+  locationName: string;
+
+  @Column({ name: "location_lat", type: "decimal", precision: 20, scale: 16, nullable: true })
+  locationLat: number;
+
+  @Column({ name: "location_lng", type: "decimal", precision: 20, scale: 16, nullable: true })
+  locationLng: number;
 
   @CreateDateColumn()
   createdAt: Date;

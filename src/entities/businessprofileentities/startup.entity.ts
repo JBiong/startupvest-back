@@ -44,7 +44,7 @@ export class Startup {
   @Column({ length: 500 })
   contactEmail: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500 , nullable: true })
   streetAddress: string;
 
   @Column({ length: 500 })
@@ -62,19 +62,19 @@ export class Startup {
   @Column({ length: 500 })
   industry: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   website: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   facebook: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   twitter: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   instagram: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable: true })
   linkedIn: string;
 
   @Column({ length: 500 })

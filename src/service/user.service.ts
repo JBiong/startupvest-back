@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
 import { MailService } from './mailer.service';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
+import { InvestorService } from './businessprofileservice/investor.service';
 
 
 @Injectable()
@@ -18,6 +19,7 @@ export class UserService {
     @InjectRepository(Startup)
     private startupRepository: Repository<Startup>,
 
+    private investorService: InvestorService,
     private mailService: MailService, // Add a mail service for sending emails
   ) { }
 
@@ -74,21 +76,15 @@ export class UserService {
 
     const savedUser = await this.usersRepository.save(user);
 
+    if (role === 'Investor') {
+      await this.investorService.create(savedUser.id, savedUser);
+    }
+
     const verificationToken = sign({ userId: savedUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     await this.mailService.sendVerificationEmail(savedUser.email, verificationToken);
   
     return savedUser;
-
-    // const savedUser = await this.usersRepository.save(user);
-
-    // // Generate a verification token (could be a JWT or unique token)
-    // const verificationToken = sign({ userId: savedUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // // Send the verification email with the token
-    // await this.mailService.sendVerificationEmail(savedUser.email, verificationToken);
-
-    // return savedUser;
   }
 
   async verifyUser(token: string): Promise<void> {
@@ -139,14 +135,6 @@ export class UserService {
     }
   }
   
-  
-
-  // async create(userData: User): Promise<User> {
-  //   const hashedPassword = await hash(userData.password, 10); // Hash the password
-  //   const role = userData.role || 'user';
-  //   const user = this.usersRepository.create({ ...userData, password: hashedPassword });
-  //   return this.usersRepository.save(user);
-  // }
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { email } });
@@ -173,17 +161,35 @@ export class UserService {
         throw new NotFoundException('User not found');
     }
 
-    // Merge the updated data into the existing user object
+    // Merge the updated data into the existing user object, including the email
     Object.assign(existingUser, userData);
 
-    // If role is provided in userData, update it
-    if (userData.role) {
-        existingUser.role = userData.role; // This is already being handled
-    }
+    // Save the updated user data
+    const savedUser = await this.usersRepository.save(existingUser);
 
-    // Save the updated user
-    return this.usersRepository.save(existingUser);
+    // If the user is an investor, also update the investor entity
+    if (savedUser.role === 'Investor') {
+        const existingInvestor = await this.investorService.findOne(savedUser.id);
+        
+        if (!existingInvestor) {
+            throw new NotFoundException('Investor profile not found');
+        }
+
+        // Make sure the investor entity is updated with the new email if it's changed
+        if (userData.email) {
+            existingInvestor.emailAddress = userData.email;
+        }
+
+        // Merge other updated fields into the investor entity if needed
+        Object.assign(existingInvestor, userData);
+
+        // Update the investor entity
+        await this.investorService.update(existingInvestor.id, existingInvestor);
+    }
+    return savedUser;
 }
+
+
 
 
   async findAll(): Promise<User[]> {
@@ -263,6 +269,29 @@ export class UserService {
   }
 
 
+  async createDefaultAdmin() {
+    const adminEmail = 'admin@gmail.com';
+    const adminPassword = '12345';
+
+    const isExist = await this.usersRepository.findOne({
+      where: { email: adminEmail },
+    });
+
+    if (!isExist) {
+      const hashedPassword = await hash(adminPassword, 10);
+      const adminUser = this.usersRepository.create({
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'Admin',
+        firstName: 'Admin',
+        lastName: 'Account',
+      });
+      await this.usersRepository.save(adminUser);
+      console.log('Default admin account created');
+    } else {
+      console.log('Default admin account already exists');
+    }
+  }
   
   
 
