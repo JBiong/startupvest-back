@@ -268,6 +268,27 @@ export class UserService {
     await this.usersRepository.save(user);
   }
 
+  async changePassword(userId: number, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.findById(userId);
+  
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    // Validate current password
+    const isPasswordValid = await compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid current password');
+    }
+  
+    // Hash the new password
+    const hashedNewPassword = await hash(newPassword, 10);
+  
+    // Update user password
+    user.password = hashedNewPassword;
+    await this.usersRepository.save(user);
+  }
+
 
   async createDefaultAdmin() {
     const adminEmail = 'admin@gmail.com';

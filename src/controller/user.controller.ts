@@ -245,4 +245,25 @@ export class UsersController {
     await this.userService.resetPassword(email, newPassword);
     return 'Password reset successfully';
   }
+
+  @Post(':id/change-password')
+  async changePassword(
+    @Req() request: Request,
+    @Param('id') userId: number,
+    @Body() { currentPassword, newPassword }: { currentPassword: string; newPassword: string }
+  ): Promise<void> {
+    try {
+      // Extract the user's ID from the JWT in the Authorization header.
+      const userId = this.getUserIdFromToken(request.headers['authorization']);
+
+      // Change the password
+      await this.userService.changePassword(userId, currentPassword, newPassword);
+
+      // Return a success response (you can customize this)
+      return;
+    } catch (error) {
+      console.error('Error changing password:', error.message);
+      throw error; // Re-throw the error for proper handling in the client
+    }
+  }
 }
