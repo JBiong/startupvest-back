@@ -21,12 +21,12 @@ export class MailService {
     const verificationUrl = `https://startupvest-back.up.railway.app/users/verify/${token}`;
     
     await this.transporter.sendMail({
-      from: 'no-reply@startupvest.com',
+      from: 'no-reply@investtrack.com',
       to: email,
       subject: 'Confirm Your Email Address',
       html: `
         <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-          <h2 style="color: #004A98;">Welcome to Startup Vest!</h2>
+          <h2 style="color: #004A98;">Welcome to InvestTrack!</h2>
           <p>Thank you for signing up! We're excited to have you on board.</p>
           <p>To complete your registration, please confirm your email address:</p>        
           <p style="text-align: left; margin-top: 20px;">
@@ -37,7 +37,7 @@ export class MailService {
           </p>
   
           <p style="margin-top: 20px;">If you did not create this account, please ignore this email.</p>
-          <p style="margin-top: 40px;">Best regards,<br>Startup Vest Team</p>
+          <p style="margin-top: 40px;">Best regards,<br>InvestTrack Team</p>
         </div>
       `,
     });
@@ -45,7 +45,7 @@ export class MailService {
 
   async sendOtp(email: string, otp: string): Promise<void> {
     await this.transporter.sendMail({
-      from: 'no-reply@startupvest.com',
+      from: 'no-reply@investtrack.com',
       to: email,
       subject: 'Your Password Reset OTP',
       html: `
@@ -55,7 +55,7 @@ export class MailService {
           <p style="font-size: 20px; font-weight: bold; color: #FF6F61;">${otp}</p>
           <p>This OTP is valid for the next 10 minutes. If you did not request a password reset, please disregard this email.</p>
   
-          <p style="margin-top: 40px;">Best regards,<br>Startup Vest Team</p> 
+          <p style="margin-top: 40px;">Best regards,<br>InvestTrack Team</p> 
         </div>
       `,
     });

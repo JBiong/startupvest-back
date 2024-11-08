@@ -136,7 +136,7 @@ export class UsersController {
           <div class="container">
             <h2>Email Successfully Verified!</h2>
             <p class="success-message">Thank you for verifying your email. Your account is now activated and ready to use.</p>
-            <p>You can now proceed to <a href="http://localhost:3001/login" style="color: #004A98;">login</a> to your account.</p>
+            <p>You can now proceed to <a href="https://startupvest-front-ten.vercel.app/login" style="color: #004A98;">login</a> to your account.</p>
           </div>
         </body>
         </html>`;
