@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from "@nestjs/common";
 import { ReportService } from "src/service/mappingservice/report.service";
+import type { Report } from "src/entities/mappingentities/report.entity";
 
 @Controller("/reports")
 export class ReportController {

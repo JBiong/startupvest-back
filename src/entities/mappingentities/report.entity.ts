@@ -11,11 +11,8 @@ export class Report {
   @Column()
   name: string;
 
-  @Column()
-  file_type: string;
-
-  @Column()
-  url: string;
+  @Column({ type: "json" })
+  content: Object;
 
   @Column({ type: "timestamp", default: () => "now()" })
   timestamp: Date;
