@@ -134,7 +134,7 @@ export class UserService {
       throw new BadRequestException('Invalid or expired token');
     }
   }
-  
+    
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { email } });

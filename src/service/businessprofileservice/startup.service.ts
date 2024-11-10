@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Startup } from "src/entities/businessprofileentities/startup.entity";
+import { Startup, StartupStatus } from "src/entities/businessprofileentities/startup.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -29,7 +29,26 @@ export class StartupService {
   }
 
   async create(userId: number, startupData: Startup): Promise<Startup> {
-    const startup = this.startupsRepository.create({ ...startupData, ceo: { id: userId } });
+    const startup = this.startupsRepository.create({ ...startupData, ceo: { id: userId }, status: StartupStatus.PENDING, });
+    return this.startupsRepository.save(startup);
+  }
+
+  async approveStartup(id: number): Promise<Startup> {
+    const startup = await this.findOne(id);
+    startup.status = StartupStatus.APPROVED;
+    return this.startupsRepository.save(startup);
+  }
+
+  // Method to reject a startup
+  async rejectStartup(id: number): Promise<Startup> {
+    const startup = await this.findOne(id);
+    startup.status = StartupStatus.REJECTED;
+    return this.startupsRepository.save(startup);
+  }
+
+  async cancelStartup(id: number): Promise<Startup> {
+    const startup = await this.findOne(id);
+    startup.status = StartupStatus.CANCELLED;
     return this.startupsRepository.save(startup);
   }
 

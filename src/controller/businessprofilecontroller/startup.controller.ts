@@ -42,6 +42,26 @@ export class StartupsController {
     return { message: "Startup created successfully" };
   }
 
+   // New endpoint to approve a startup
+   @Put(":id/approve")
+   async approveStartup(@Param("id") id: string): Promise<any> {
+     await this.startupService.approveStartup(Number(id));
+     return { message: `Startup with ID ${id} has been approved` };
+   }
+ 
+   // New endpoint to reject a startup
+   @Put(":id/reject")
+   async rejectStartup(@Param("id") id: string): Promise<any> {
+     await this.startupService.rejectStartup(Number(id));
+     return { message: `Startup with ID ${id} has been rejected` };
+   }
+
+   @Put(":id/cancel")
+   async cancelStartup(@Param("id") id: string): Promise<any> {
+     await this.startupService.cancelStartup(Number(id));
+     return { message: `Startup with ID ${id} has been cancelled` };
+   }
+
   @Get()
   findAll(@Req() request: Request) {
     const userId = this.getUserIdFromToken(request.headers["authorization"]);

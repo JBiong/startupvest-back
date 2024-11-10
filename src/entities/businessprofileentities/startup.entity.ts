@@ -18,6 +18,13 @@ import { Item } from "../ItemEntity/item.entity";
 import { Payment } from "../PaymentEntity/payment.entity";
 import { Project } from "../ProjectEntity/project.entity";
 
+export enum StartupStatus {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+  CANCELLED = "cancelled"
+}
+
 @Entity()
 export class Startup {
   @PrimaryGeneratedColumn()
@@ -76,6 +83,13 @@ export class Startup {
 
   @Column({ length: 500, nullable: true })
   linkedIn: string;
+
+  @Column({
+    type: "enum",
+    enum: StartupStatus,
+    default: StartupStatus.PENDING,
+  })
+  status: StartupStatus;
 
   @Column({ length: 500 })
   startupCode: string;
