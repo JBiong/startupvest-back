@@ -198,18 +198,22 @@ export class UserService {
 
   async getUserRegistrationByMonth(year: number): Promise<any> {
     try {
-        const userRegistrations = await this.usersRepository.createQueryBuilder('user')
-            .select(`DATE_FORMAT(user.createdAt, '%Y-%m')`, 'month') // Format to "YYYY-MM"
-            .addSelect('COUNT(user.id)', 'count') // This will be a number
-            .where('YEAR(user.createdAt) = :year', { year })
-            .groupBy('month')
-            .getRawMany();
-
-        // Convert count to a number
-        const formattedRegistrations = userRegistrations.map(registration => ({
-            month: registration.month,
-            count: Number(registration.count) // Ensure count is a number
-        }));
+      const userRegistrations = await this.usersRepository.createQueryBuilder('user')
+      .select('YEAR(user.createdAt)', 'year')
+      .addSelect('MONTH(user.createdAt)', 'month')
+      .addSelect('COUNT(user.id)', 'count')
+      .where('YEAR(user.createdAt) = :year', { year })
+      .groupBy('year, month')
+      .orderBy('year', 'ASC')
+      .addOrderBy('month', 'ASC')
+      .getRawMany();
+  
+  // Format results in your application
+  const formattedRegistrations = userRegistrations.map(registration => ({
+      month: `${registration.year}-${String(registration.month).padStart(2, '0')}`,
+      count: Number(registration.count)
+  }));
+  
 
         return formattedRegistrations; // Return the formatted registrations
     } catch (error) {
