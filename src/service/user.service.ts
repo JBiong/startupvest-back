@@ -198,29 +198,30 @@ export class UserService {
 
   async getUserRegistrationByMonth(year: number): Promise<any> {
     try {
-      const userRegistrations = await this.usersRepository.createQueryBuilder('user')
-      .select('YEAR(user.createdAt)', 'year')
-      .addSelect('MONTH(user.createdAt)', 'month')
-      .addSelect('COUNT(user.id)', 'count')
-      .where('YEAR(user.createdAt) = :year', { year })
-      .groupBy('year, month')
-      .orderBy('year', 'ASC')
-      .addOrderBy('month', 'ASC')
-      .getRawMany();
-  
-  // Format results in your application
-  const formattedRegistrations = userRegistrations.map(registration => ({
-      month: `${registration.year}-${String(registration.month).padStart(2, '0')}`,
-      count: Number(registration.count)
-  }));
-  
+        // Step 1: Retrieve all users created in the specified year
+        const users = await this.usersRepository.createQueryBuilder('user')
+            .where('YEAR(user.createdAt) = :year', { year })
+            .getMany();
 
-        return formattedRegistrations; // Return the formatted registrations
+        // Step 2: Group users by month
+        const userRegistrations = users.reduce((acc, user) => {
+            const month = user.createdAt.toISOString().slice(0, 7); // Format to "YYYY-MM"
+            acc[month] = (acc[month] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        // Step 3: Format the result as an array of objects with 'month' and 'count'
+        const formattedRegistrations = Object.keys(userRegistrations).map(month => ({
+            month,
+            count: userRegistrations[month]
+        }));
+
+        return formattedRegistrations;
     } catch (error) {
         console.error('Error fetching user registrations:', error);
         throw new Error('Could not fetch user registrations');
     }
-  }
+}
 
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersRepository.findOne({ where: { email } });
