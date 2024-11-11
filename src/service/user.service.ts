@@ -199,7 +199,7 @@ export class UserService {
   async getUserRegistrationByMonth(year: number): Promise<any> {
     try {
         const userRegistrations = await this.usersRepository.createQueryBuilder('user')
-            .select('DATE_FORMAT(user.createdAt, "%Y-%m")', 'month') // Format to "YYYY-MM"
+            .select("DATE_FORMAT(user.createdAt, '%Y-%m')", 'month') // Format to "YYYY-MM"
             .addSelect('COUNT(user.id)', 'count') // This will be a number
             .where('YEAR(user.createdAt) = :year', { year })
             .groupBy('month')
