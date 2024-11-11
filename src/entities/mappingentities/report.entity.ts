@@ -11,8 +11,8 @@ export class Report {
   @Column()
   name: string;
 
-  @Column({ type: "json" })
-  content: Object;
+  @Column({ type: "text" })
+  content: string;
 
   @Column({ type: "timestamp", default: () => "now()" })
   timestamp: Date;
