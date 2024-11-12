@@ -91,6 +91,12 @@ export class Startup {
   })
   status: StartupStatus;
 
+  @Column({ default: false })
+  deleteRequested: boolean; // Flag to track deletion request
+
+  @Column({ nullable: true })
+  deleteRequestedAt: Date; // Timestamp of deletion request
+
   @Column({ length: 500 })
   startupCode: string;
 

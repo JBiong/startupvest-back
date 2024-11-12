@@ -52,9 +52,45 @@ export class StartupService {
     return this.startupsRepository.save(startup);
   }
 
-  // async findAllStartups(): Promise<Startup[]> {
-  //   return this.startupsRepository.find({ where: { isDeleted: false } });
-  // }
+
+  async requestDeletion(id: number): Promise<Startup> {
+    const startup = await this.startupsRepository.findOne({ where: { id } });
+    if (!startup) {
+      throw new Error("Startup not found");
+    }
+
+    startup.deleteRequested = true;
+    startup.deleteRequestedAt = new Date();
+    return this.startupsRepository.save(startup);
+  }
+
+  async approveDeletion(id: number): Promise<Startup> {
+    const startup = await this.startupsRepository.findOne({ where: { id } });
+    if (!startup) {
+      throw new Error("Startup not found");
+    }
+
+    startup.isDeleted = true;
+    startup.deleteRequested = false; // Reset the delete request status
+    return this.startupsRepository.save(startup);
+  }
+
+  async rejectDeletion(id: number): Promise<Startup> {
+    const startup = await this.startupsRepository.findOne({ where: { id } });
+    if (!startup) {
+      throw new Error("Startup not found");
+    }
+
+    startup.deleteRequested = false;
+    return this.startupsRepository.save(startup);
+  }
+
+  async findAllDeletionRequests(): Promise<Startup[]> {
+    return this.startupsRepository.find({
+      where: { deleteRequested: true },
+      relations: ['ceo', 'cfo'] // Fetch related entities if needed
+    });
+  }
 
   async findOneWithFundingRounds(id: number): Promise<Startup> {
     return this.startupsRepository.findOne({
