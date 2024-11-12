@@ -103,21 +103,19 @@ export class FundingRoundController {
   }
 
   @Get("all")
-  async findAll() {
-    try {
-      const fundingRounds = await this.fundingRoundService.findAll();
-      if (!fundingRounds || fundingRounds.length === 0) {
-        throw new NotFoundException("No funding rounds found");
-      }
-      return fundingRounds;
-    } catch (error) {
-      this.logger.error("Failed to fetch funding rounds:", error);
-      throw new HttpException(
-        "Failed to fetch funding rounds",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
+async findAll() {
+  try {
+    const fundingRounds = await this.fundingRoundService.findAll();
+    return fundingRounds || []; // Return an empty array if no funding rounds are found
+  } catch (error) {
+    this.logger.error("Failed to fetch funding rounds:", error);
+    throw new HttpException(
+      "Failed to fetch funding rounds",
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
   }
+}
+
   @Get(":id")
   async findById(@Param("id") id: number): Promise<FundingRound> {
     const fundingRound = await this.fundingRoundService.findById(id);

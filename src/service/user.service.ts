@@ -201,6 +201,8 @@ export class UserService {
         // Step 1: Retrieve all users created in the specified year
         const users = await this.usersRepository.createQueryBuilder('user')
             .where('YEAR(user.createdAt) = :year', { year })
+            .andWhere('user.isVerified = :isVerified', { isVerified: true })
+            .andWhere('user.role != :role', { role: 'Admin' })
             .getMany();
 
         // Step 2: Group users by month
