@@ -76,12 +76,28 @@ export class StartupsController {
   @Get("all")
   async findAllStartups(): Promise<Startup[]> {
     try {
-      const startups =
-        await this.startupService.findAllStartupsWithFundingRounds();
+      const startups = await this.startupService.findAllStartupsWithFundingRounds();
+  
       if (!startups || startups.length === 0) {
+        // Handle the case where there are no startups
+        return [];
       }
-      return startups;
-    } catch (error) {}
+  
+      // Map the CEO and CFO information to the startups
+      const startupsWithOwnerInfo = startups.map((startup) => ({
+        ...startup,
+        ceoName: `${startup.ceo.firstName} ${startup.ceo.lastName}`,
+        // ceoAvatarUrl: startup.ceo.avatarUrl,
+        cfoName: startup.cfo ? `${startup.cfo.firstName} ${startup.cfo.lastName}` : "N/A",
+        // cfoAvatarUrl: startup.cfo ? startup.cfo.avatarUrl : null,
+      }));
+  
+      return startupsWithOwnerInfo;
+    } catch (error) {
+      // Handle any errors
+      console.error("Error fetching startups:", error);
+      throw error;
+    }
   }
 
   @Get(":id")
