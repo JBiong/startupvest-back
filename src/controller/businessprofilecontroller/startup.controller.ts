@@ -42,25 +42,52 @@ export class StartupsController {
     return { message: "Startup created successfully" };
   }
 
-   // New endpoint to approve a startup
-   @Put(":id/approve")
-   async approveStartup(@Param("id") id: string): Promise<any> {
-     await this.startupService.approveStartup(Number(id));
-     return { message: `Startup with ID ${id} has been approved` };
-   }
- 
-   // New endpoint to reject a startup
-   @Put(":id/reject")
-   async rejectStartup(@Param("id") id: string): Promise<any> {
-     await this.startupService.rejectStartup(Number(id));
-     return { message: `Startup with ID ${id} has been rejected` };
-   }
+  // New endpoint to approve a startup
+  @Put(":id/approve")
+  async approveStartup(@Param("id") id: string): Promise<any> {
+    await this.startupService.approveStartup(Number(id));
+    return { message: `Startup with ID ${id} has been approved` };
+  }
 
-   @Put(":id/cancel")
-   async cancelStartup(@Param("id") id: string): Promise<any> {
-     await this.startupService.cancelStartup(Number(id));
-     return { message: `Startup with ID ${id} has been cancelled` };
-   }
+  // New endpoint to reject a startup
+  @Put(":id/reject")
+  async rejectStartup(@Param("id") id: string): Promise<any> {
+    await this.startupService.rejectStartup(Number(id));
+    return { message: `Startup with ID ${id} has been rejected` };
+  }
+
+  @Put(":id/cancel")
+  async cancelStartup(@Param("id") id: string): Promise<any> {
+    await this.startupService.cancelStartup(Number(id));
+    return { message: `Startup with ID ${id} has been cancelled` };
+  }
+
+  @Put(":id/request-delete")
+  async requestDeletion(@Param("id") id: number): Promise<any> {
+    await this.startupService.requestDeletion(id);
+    return {
+      message: `Deletion request for startup with ID ${id} has been sent to the admin`,
+    };
+  }
+
+  @Put(":id/approve-delete")
+  async approveDeletion(@Param("id") id: number): Promise<any> {
+    await this.startupService.approveDeletion(id);
+    return { message: `Startup with ID ${id} has been marked as deleted` };
+  }
+
+  @Put(":id/reject-delete")
+  async rejectDeletion(@Param("id") id: number): Promise<any> {
+    await this.startupService.rejectDeletion(id);
+    return {
+      message: `Deletion request for startup with ID ${id} has been rejected`,
+    };
+  }
+  
+  @Get("deletion-requests")
+  async findAllDeletionRequests(): Promise<Startup[]> {
+    return this.startupService.findAllDeletionRequests();
+  }
 
   @Get()
   findAll(@Req() request: Request) {
@@ -68,7 +95,7 @@ export class StartupsController {
     return this.startupService.findAll(userId);
   }
 
-  @Get('guest')
+  @Get("guest")
   async findAllStartupsforguest(): Promise<Startup[]> {
     return this.startupService.findAllStarupsforguest();
   }
