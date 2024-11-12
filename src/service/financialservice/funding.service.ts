@@ -463,16 +463,22 @@ export class FundingRoundService {
         .andWhere("fundingRound.isDeleted = 0")
         .select(["fundingRound.createdAt", "fundingRound.moneyRaised"])
         .getMany();
-
-      // Check if userCompanies is not empty
+  
+      // If no funding rounds are found, return an empty array or zeroed data
       if (!userCompanies.length) {
-        throw new NotFoundException(
-          "No funding rounds found for the specified user and year"
-        );
+        this.logger.warn(`No funding rounds found for ceoId: ${ceoId} and year: ${year}`);
+        return [];
+          // Option 1: Return an empty array
+  
+        // Or return zeroed data for each month in the year
+        // return Array.from({ length: 12 }, (_, index) => ({
+        //   month: `${year}-${String(index + 1).padStart(2, '0')}`,
+        //   total: 0,
+        // }));  // Option 2: Return zeroed data for each month
       }
-
+  
       const monthlyTotals = new Map<string, number>();
-
+  
       userCompanies.forEach((round) => {
         const month = round.createdAt.toISOString().slice(0, 7); // 'YYYY-MM'
         if (!monthlyTotals.has(month)) {
@@ -480,19 +486,14 @@ export class FundingRoundService {
         }
         monthlyTotals.set(month, monthlyTotals.get(month) + round.moneyRaised);
       });
-
+  
       return Array.from(monthlyTotals.entries()).map(([month, total]) => ({
         month,
         total,
       }));
     } catch (error) {
-      this.logger.error(
-        "Error calculating total monthly funding:",
-        error.message
-      );
-      throw new InternalServerErrorException(
-        "Error calculating total monthly funding"
-      );
+      this.logger.error("Error calculating total monthly funding:", error.message);
+      throw new InternalServerErrorException("Error calculating total monthly funding");
     }
   }
 
