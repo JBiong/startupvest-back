@@ -1,13 +1,16 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Startup, StartupStatus } from "src/entities/businessprofileentities/startup.entity";
+import { FundingRound } from "src/entities/financialentities/funding.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class StartupService {
   constructor(
     @InjectRepository(Startup)
-    private startupsRepository: Repository<Startup>
+    private startupsRepository: Repository<Startup>,
+    @InjectRepository(FundingRound)
+    private fundingRoundRepository: Repository<FundingRound>
   ) {}
 
   // async create(startupData: Startup): Promise<Startup> {
@@ -69,6 +72,10 @@ export class StartupService {
     if (!startup) {
       throw new Error("Startup not found");
     }
+
+    await this.fundingRoundRepository.update( 
+      {startup:{id}},
+      {isDeleted: true});
 
     startup.isDeleted = true;
     startup.deleteRequested = false; // Reset the delete request status
@@ -137,6 +144,10 @@ export class StartupService {
       throw new NotFoundException("Startup not found");
     }
     await this.startupsRepository.update(id, { isDeleted: true });
+
+    await this.fundingRoundRepository.update( 
+      {startup:{id}},
+      {isDeleted: true});
   }
 
   //for likes,bookmarks, views

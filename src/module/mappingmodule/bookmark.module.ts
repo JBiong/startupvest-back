@@ -9,9 +9,10 @@ import { StartupService } from "src/service/businessprofileservice/startup.servi
 import { BookmarkService } from "src/service/mappingservice/bookmark.service";
 import { InvestorModule } from "../businessprofilemodule/investor.module";
 import { StartupModule } from "../businessprofilemodule/startup.module";
+import { FundingRound } from "src/entities/financialentities/funding.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Bookmark, Investor, Startup]), StartupModule, InvestorModule],
+  imports: [TypeOrmModule.forFeature([Bookmark, Investor, Startup,FundingRound]), StartupModule, InvestorModule],
   controllers: [BookmarkController],
   providers: [BookmarkService, InvestorService, StartupService],
 })

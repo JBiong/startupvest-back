@@ -100,7 +100,7 @@ export class Startup {
   @Column({ length: 500 })
   startupCode: string;
 
-  @OneToMany(() => FundingRound, (fundingRound) => fundingRound.startup)
+  @OneToMany(() => FundingRound, (fundingRound) => fundingRound.startup, {cascade: ['remove']})
   fundingRounds: FundingRound[];
 
   @Column({ default: false })

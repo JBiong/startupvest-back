@@ -9,9 +9,10 @@ import { StartupService } from "src/service/businessprofileservice/startup.servi
 import { ViewService } from "src/service/mappingservice/view.service";
 import { InvestorModule } from "../businessprofilemodule/investor.module";
 import { StartupModule } from "../businessprofilemodule/startup.module";
+import { FundingRound } from "src/entities/financialentities/funding.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([View, Investor, Startup]), InvestorModule, StartupModule],
+  imports: [TypeOrmModule.forFeature([View, Investor, Startup,FundingRound]), InvestorModule, StartupModule],
   controllers: [ViewController],
   providers: [ViewService, InvestorService, StartupService],
 })
