@@ -51,7 +51,9 @@ export class InvestorService {
     return this.investorsRepository.find({ where: { user: { id: userId } } });
   }
   async findAllInvestors(): Promise<Investor[]> {
-    return this.investorsRepository.find();
+    return this.investorsRepository.find({
+      relations: ['user'], // Load the user relation
+    });
   }
 
   // async getInvestorIds(userId: number): Promise<number[]> {
