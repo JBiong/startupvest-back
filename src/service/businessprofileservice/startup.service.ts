@@ -118,6 +118,7 @@ export class StartupService {
         "fundingRounds.capTableInvestors",
         "fundingRounds.capTableInvestors.investor",
         "ceo",
+        "ceo.profilePicture",
       ],
     });
   }
