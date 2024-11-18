@@ -8,7 +8,6 @@ import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class InvestorService {
-  [x: string]: any;
   constructor(
     @InjectRepository(Investor)
     private investorsRepository: Repository<Investor>,

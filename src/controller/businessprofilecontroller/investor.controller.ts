@@ -45,10 +45,10 @@ export class InvestorsController {
     return this.investorService.findAllInvestors();
   }
 
-  @Get(':userId/ids')
-  async getInvestorIds(@Param('userId') userId: number): Promise<number[]> {
-    return this.investorService.getInvestorIds(userId);
-  }
+  // @Get(':userId/ids')
+  // async getInvestorIds(@Param('userId') userId: number): Promise<number[]> {
+  //   return this.investorService.getInvestorIds(userId);
+  // }
   
   @Get('by-ids')
   async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
@@ -57,10 +57,10 @@ export class InvestorsController {
   }
 
 
-  @Get(':ids')
-  findByIds(@Param('ids') ids: number[]) {
-    return this.investorService.findByIds(ids);
-  }
+  // @Get(':id')
+  // findById(@Param('id') ids: number) {
+  //   return this.investorService.findByIds(id);
+  // }
 
 
   // // In InvestorsController
