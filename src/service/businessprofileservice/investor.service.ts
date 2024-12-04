@@ -66,22 +66,11 @@ export class InvestorService {
   async update(id: number, investorData: Partial<Investor>): Promise<Investor> {
     const existingInvestor = await this.findOne(id);
     if (!existingInvestor) {
-        throw new NotFoundException('Investor not found');
+      throw new NotFoundException('Investor not found');
     }
-
-    // If locationName is provided in the investorData, update the corresponding user data
-    if (investorData.locationName) {
-        await this.userRepository.update(
-            { id: existingInvestor.id }, // Assuming the investor has a userId field linking to the user
-            { locationName: investorData.locationName } // The field to update in the User entity
-        );
-    }
-
-    // Update the investor data
     const updatedInvestor = await this.investorsRepository.save({ ...existingInvestor, ...investorData });
-    
     return updatedInvestor;
-}
+  }
 
   async softDelete(id: number): Promise<void> {
     const existingInvestor = await this.findOne(id);
