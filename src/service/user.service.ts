@@ -184,7 +184,7 @@ export class UserService {
         Object.assign(existingInvestor, userData);
 
         // Update the investor entity
-        await this.investorService.update(existingInvestor.id, existingInvestor);
+        await this.investorService.update(existingInvestor.id, existingInvestor,userData);
     }
     return savedUser;
 }

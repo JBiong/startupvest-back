@@ -8,6 +8,7 @@ import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class InvestorService {
+  [x: string]: any;
   constructor(
     @InjectRepository(Investor)
     private investorsRepository: Repository<Investor>,
@@ -50,9 +51,7 @@ export class InvestorService {
     return this.investorsRepository.find({ where: { user: { id: userId } } });
   }
   async findAllInvestors(): Promise<Investor[]> {
-    return this.investorsRepository.find({
-      relations: ['user'], // Load the user relation
-    });
+    return this.investorsRepository.find();
   }
 
   // async getInvestorIds(userId: number): Promise<number[]> {
@@ -64,14 +63,36 @@ export class InvestorService {
 
 
 
-  async update(id: number, investorData: Partial<Investor>): Promise<Investor> {
+  async update(
+    id: number,
+    investorData: Partial<Investor>,
+    userData: Partial<User>
+  ): Promise<Investor> {
+    // Find the existing investor
     const existingInvestor = await this.findOne(id);
     if (!existingInvestor) {
       throw new NotFoundException('Investor not found');
     }
-    const updatedInvestor = await this.investorsRepository.save({ ...existingInvestor, ...investorData });
+  
+    // Find the associated user of the investor
+    const existingUser = await this.userRepository.findOne(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+  
+    // Update the user with the provided data
+    const updatedUser = await this.userRepository.save({ ...existingUser, ...userData });
+  
+    // Ensure the updated user is associated with the investor if needed
+    const updatedInvestor = await this.investorsRepository.save({
+      ...existingInvestor,
+      ...investorData,
+      user: updatedUser, // explicitly set the updated user if the relationship exists
+    });
+  
     return updatedInvestor;
   }
+  
 
   async softDelete(id: number): Promise<void> {
     const existingInvestor = await this.findOne(id);

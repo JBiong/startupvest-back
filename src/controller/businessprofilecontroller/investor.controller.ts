@@ -85,8 +85,8 @@ export class InvestorsController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() investorData: Investor): Promise<Investor> {
-    return this.investorService.update(Number(id), investorData);
+  async update(@Param('id') id: number, @Body() investorData: Investor,@Body() userData: User): Promise<Investor> {
+    return this.investorService.update(Number(id), investorData,userData);
   }
 
   @Put(':id/delete')
